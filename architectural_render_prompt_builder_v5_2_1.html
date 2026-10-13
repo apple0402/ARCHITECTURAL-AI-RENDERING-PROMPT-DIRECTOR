@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architectural AI Rendering Director · V5.2.1</title>
+<style>
+:root{
+  --bg:#edf1f0;--panel:#fff;--soft:#f6f8f7;--soft2:#eef4f2;--line:#d9e2de;
+  --text:#14201c;--muted:#6e7b76;--accent:#0c668c;--accent2:#e7f3f8;--accent3:#123f51;
+  --good:#2b7654;--goodbg:#eaf6ef;--warn:#9a5a1a;--warnbg:#fff4e7;--danger:#a44336;--dangerbg:#fff0ee;
+  --shadow:0 10px 30px rgba(25,45,38,.06);--radius:15px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+body{min-height:100vh} button,select,input,textarea{font:inherit} button{cursor:pointer}
+.app{max-width:1680px;margin:0 auto;padding:18px 18px 44px}
+.header{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:15px}
+.brand .eyebrow,.eyebrow{font-size:10px;letter-spacing:1px;color:var(--accent);font-weight:900;text-transform:uppercase}
+.brand h1{font-size:29px;letter-spacing:-1px;margin:3px 0 5px;font-weight:900}.brand p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.6;max-width:790px}
+.header-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.btn{border:1px solid var(--line);background:#fff;color:#2b3632;border-radius:9px;padding:9px 12px;font-size:11px;font-weight:850}.btn:hover{border-color:#b9c8c2}.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.ghost{background:var(--soft)}
+.workspace{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(480px,.86fr);gap:15px;align-items:start}.left{display:grid;gap:13px}.right{position:sticky;top:12px}
+.card{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:var(--radius);padding:16px 17px}.card h2{font-size:16px;margin:0 0 4px;letter-spacing:-.25px}.desc{font-size:11px;color:var(--muted);line-height:1.55;margin-bottom:13px}.section-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.tool-tag{font-size:9.5px;font-weight:900;letter-spacing:.2px;color:var(--accent);background:var(--accent2);border-radius:999px;padding:5px 8px;white-space:nowrap}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.material-system{display:grid;gap:11px}.material-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.material-card{border:1px solid var(--line);background:#fbfcfb;border-radius:11px;padding:11px}.material-head{display:flex;justify-content:space-between;align-items:center;gap:7px;margin-bottom:7px}.material-name{font-size:10.5px;font-weight:950}.id-color-control{display:grid;grid-template-columns:28px 1fr auto;gap:6px;align-items:center}.id-color-control input[type=color]{width:28px;height:28px;padding:2px;border:1px solid var(--line);border-radius:7px;background:#fff;cursor:pointer}.id-hex{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10px}.sample-btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 7px;font-size:9px;font-weight:850;white-space:nowrap}.sample-btn:hover{border-color:#9bb0a8;background:var(--soft)}.material-hint{font-size:9px;color:var(--muted);line-height:1.45;margin-top:6px}.id-panel{border:1px solid var(--line);background:var(--soft);border-radius:11px;padding:11px}.id-panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.id-upload{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.id-preview-wrap{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:10px;margin-top:9px}.id-canvas-wrap{background:#111;border-radius:9px;min-height:240px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}.id-canvas-wrap canvas{max-width:100%;max-height:390px;display:block;cursor:crosshair}.id-info{background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px}.id-info .swatch-lg{width:52px;height:38px;border-radius:7px;border:1px solid #d6dfda;margin-bottom:8px}.id-info b{font-size:10px;display:block;margin-bottom:4px}.id-info div{font-size:9.5px;color:var(--muted);line-height:1.45}.id-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}.id-row label{font-size:9.5px;font-weight:850;color:#52605b}.id-row input[type=range]{width:120px}
+.field label,.group-title{display:block;font-size:10.5px;font-weight:900;color:#4c5954;margin-bottom:6px}.field small{display:block;color:#86928e;font-size:9.5px;line-height:1.35;margin-top:5px}
+select,input[type=text],input[type=number],textarea{width:100%;border:1px solid var(--line);background:var(--soft);color:var(--text);border-radius:9px;padding:9px 10px;outline:none;font-size:11px}.field select{min-height:38px}select:focus,input:focus,textarea:focus{border-color:#8eafbf;box-shadow:0 0 0 3px rgba(12,102,140,.08)}textarea{min-height:74px;resize:vertical}
+.segment{display:flex;gap:5px;flex-wrap:wrap}.seg-btn{border:1px solid var(--line);background:var(--soft);color:#45524e;border-radius:8px;padding:8px 10px;font-size:10.5px;font-weight:850}.seg-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.card-note{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 11px;font-size:10.5px;color:#56625e;line-height:1.55}.card-note strong{color:#25332e}.note-good{background:var(--goodbg);border-color:#cfe7d9;color:#276247}.note-warn{background:var(--warnbg);border-color:#efd4b8;color:#77511f}.note-danger{background:var(--dangerbg);border-color:#efc9c3;color:#78362e}
+.mode-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.mode{border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:11px;text-align:left}.mode strong{display:block;font-size:11.5px}.mode span{display:block;color:var(--muted);font-size:9.7px;line-height:1.4;margin-top:4px}.mode.active{background:var(--accent2);border-color:#9ec5d6;box-shadow:inset 0 0 0 1px #c2dce6}.mode.active strong{color:var(--accent3)}
+.check-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.check{display:flex;align-items:flex-start;gap:7px;border:1px solid var(--line);background:var(--soft);border-radius:9px;padding:8px 9px;font-size:10.5px;line-height:1.35}.check input{margin-top:2px;accent-color:var(--accent)}
+.ref-wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:11px}.upload{min-height:195px;border:1.5px dashed #b8c8c1;border-radius:12px;background:#f8fbfa;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}.upload.drag{border-color:var(--accent);background:var(--accent2)}.upload img{max-width:100%;max-height:340px;display:none;object-fit:contain}.upload-copy{text-align:center;padding:22px}.upload-copy strong{display:block;font-size:12px}.upload-copy span{display:block;color:var(--muted);font-size:10px;margin:5px 0 11px}.status{font-size:10px;color:var(--muted);margin-top:7px}.ref-steps{display:grid;gap:7px}.ref-step{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:var(--soft)}.ref-step b{font-size:10.5px;display:block;margin-bottom:3px}.ref-step span{font-size:9.8px;line-height:1.4;color:var(--muted)}
+.preset-row{display:flex;gap:7px;flex-wrap:wrap}.preset{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 10px;font-size:10px;font-weight:850;color:#42504b}.preset:hover{border-color:#a7bbb3;background:var(--soft)}
+.range{display:grid;grid-template-columns:minmax(0,1fr) 48px;gap:8px;align-items:center}.range input{width:100%;padding:0}.range output{text-align:right;font-size:10.5px;font-weight:900}
+.stepper{display:flex;gap:6px}.stepper button{width:31px;height:34px;border:1px solid var(--line);border-radius:8px;background:var(--soft);font-weight:900}.stepper input{text-align:center}
+.orbit-layout{display:grid;grid-template-columns:184px minmax(0,1fr);gap:15px;align-items:center}.orbit{width:184px;height:184px;border:1px dashed #c5d0cc;border-radius:50%;position:relative;background:radial-gradient(circle at center,#fbfdfc 0 22%,transparent 22%)}.orbit:after{content:"";position:absolute;left:50%;top:50%;width:46px;height:58px;border:2px solid #27312e;border-radius:7px;transform:translate(-50%,-50%)}.orbit .cam{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:33px;height:22px;border-radius:5px;background:#1b2521}.orbit .sun{position:absolute;width:19px;height:19px;border-radius:50%;background:#e09c19;box-shadow:0 0 0 4px rgba(224,156,25,.16);transform:translate(-50%,-50%)}.orbit .sun-point{position:absolute;width:27px;height:27px;padding:0;border:2px solid #d5ddd9;background:#fff;border-radius:50%;transform:translate(-50%,-50%);display:grid;place-items:center;cursor:pointer;z-index:2}.orbit .sun-point:after{content:"";width:13px;height:13px;border-radius:50%;background:#d5ddd9}.orbit .sun-point.active{border-color:#e09c19;background:#fff4d9;box-shadow:0 0 0 5px rgba(224,156,25,.13)}.orbit .sun-point.active:after{background:#d69211;width:15px;height:15px}.orbit .sun-point:focus-visible{outline:3px solid #2b6488;outline-offset:3px}.orbit .label{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:9px;font-weight:900;color:#68736f}.legend{font-size:9.6px;color:var(--muted);line-height:1.45;margin-top:7px}
+.metric-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.metric{border:1px solid var(--line);border-radius:10px;background:var(--soft);padding:10px}.metric b{font-size:9px;color:var(--muted);display:block;margin-bottom:4px}.metric strong{font-size:14px;letter-spacing:-.2px}.metric span{font-size:9px;color:var(--muted);display:block;margin-top:2px}
+.output-card{height:calc(100vh - 38px);min-height:800px;display:flex;flex-direction:column}.output-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.output-top h2{margin-bottom:2px}.output-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.tabs{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}.tab{border:1px solid var(--line);background:var(--soft);padding:8px 10px;border-radius:8px;font-size:10px;font-weight:900}.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}.prompt-area{flex:1;min-height:0;overflow:auto;border:1px solid var(--line);background:#f9fbfa;border-radius:11px;padding:13px}.prompt-block{margin-bottom:15px}.prompt-block:last-child{margin-bottom:0}.prompt-title{font-size:10.5px;font-weight:900;color:#3f4d48;margin-bottom:7px}.prompt{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10.4px;line-height:1.72;color:#23312c}.mini-actions{display:flex;gap:6px;justify-content:flex-end;margin-bottom:7px}.mini-btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 8px;font-size:9.5px;font-weight:850}.prompt-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.pill{padding:5px 8px;border-radius:999px;background:var(--soft2);color:#4d5a55;font-size:9.5px;font-weight:850}.summary{margin-top:9px;padding:10px 11px;border-radius:10px;background:var(--soft);font-size:10px;color:#586560;line-height:1.5}.summary strong{color:#27342f}.hint{margin-top:8px;border-radius:9px;padding:9px 10px;font-size:9.8px;line-height:1.45}.hint.good{background:var(--goodbg);color:#286548;border:1px solid #cbe5d5}.hint.warn{background:var(--warnbg);color:#75501f;border:1px solid #efd5b9}.hint.danger{background:var(--dangerbg);color:#783a31;border:1px solid #efcbc4}
+.toast{position:fixed;right:18px;bottom:18px;background:#1a2521;color:#fff;border-radius:9px;padding:10px 13px;font-size:10.5px;opacity:0;transform:translateY(6px);transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:none}.divider{height:1px;background:var(--line);margin:14px 0}.muted-note{font-size:9.5px;color:#7d8985;line-height:1.4}
+@media(max-width:1240px){.workspace{grid-template-columns:1fr}.right{position:static}.output-card{height:760px}.header{align-items:flex-start;flex-direction:column}.header-actions{justify-content:flex-start}}
+@media(max-width:860px){.grid2,.grid3,.grid4,.check-grid,.mode-grid,.metric-row,.ref-wrap,.orbit-layout,.material-grid,.id-preview-wrap{grid-template-columns:1fr}.app{padding:10px}.card{padding:14px}.orbit{margin:auto}}
+
+.stage-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 10px}
+.stage-card{display:grid;grid-template-columns:auto 1fr;column-gap:10px;row-gap:4px;text-align:left;border:1px solid var(--line);background:#fff;border-radius:13px;padding:13px 15px;color:var(--text)}
+.stage-card .stage-number{grid-row:1 / span 3;align-self:start;background:var(--soft2);color:var(--accent);border-radius:9px;padding:8px 9px;font-size:11px;font-weight:950}
+.stage-card strong{font-size:13px}.stage-card small{font-size:10.5px;color:var(--muted);line-height:1.45}.stage-card em{font-style:normal;font-size:9.5px;color:var(--muted)}
+.stage-card.active{border-color:#80b4ca;box-shadow:inset 0 0 0 1px #a9cfde;background:#f4fbfe}.stage-card.active .stage-number{background:var(--accent);color:#fff}
+.stage-instruction{background:var(--accent2);border:1px solid #c6e0eb;color:#244b5c;border-radius:10px;padding:10px 12px;margin-bottom:13px;font-size:11px;line-height:1.5}
+.pass2-reminder{border-color:#9fcfba}.pass-list{margin:9px 0 0;padding-left:20px;color:#53615b;font-size:10.5px;line-height:1.7}
+section[data-pass="1"],section[data-pass="2"]{display:none}section[data-pass="both"]{display:block}
+@media(max-width:700px){.stage-nav{grid-template-columns:1fr}.stage-card{padding:11px}}
+
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header">
+  <div class="brand">
+    <div class="eyebrow">ARCHITECTURAL AI RENDERING DIRECTOR · V5.2.1</div>
+    <h1>건축 렌더 프롬프트 빌더</h1>
+    <p>3D 모델링 캡처를 설계 기준으로 고정하고, 사용자는 조건만 선택합니다. 시스템이 건축 CG 실무에 맞는 형상·카메라·재료·대지·조경·배경·하늘·조명·사진 규칙을 자동으로 하나의 프롬프트로 조합합니다.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn ghost" id="saveBtn">설정 저장</button>
+    <button class="btn ghost" id="loadBtn">불러오기</button>
+    <button class="btn" id="resetBtn">초기화</button>
+  </div>
+</header>
+
+<div class="metric-row" style="margin-bottom:13px">
+  <div class="metric"><b>WORKFLOW</b><strong id="metricWorkflow">2 PASS</strong><span>건축 → 환경</span></div>
+  <div class="metric"><b>FORM LOCK</b><strong id="metricLock">100%</strong><span id="metricLockSub">설계 보존</span></div>
+  <div class="metric"><b>SCENE</b><strong id="metricScene">도심</strong><span id="metricSceneSub">오후 자연광</span></div>
+  <div class="metric"><b>OUTPUT</b><strong id="metricEngine">NANO</strong><span id="metricOutput">통합 프롬프트</span></div>
+</div>
+
+<section class="stage-nav" aria-label="작업 단계 선택">
+  <button class="stage-card active" data-stage="1"><span class="stage-number">PASS 1</span><strong>PASS 1 · 건축물만</strong><small>형태 고정 · 카메라 · 재료 · 건축물 표면 빛</small><em>먼저 실행할 단계</em></button>
+  <button class="stage-card" data-stage="2"><span class="stage-number">PASS 2</span><strong>PASS 2 · 주변 환경</strong><small>도로 · 차선 · 보도 · 조경 · 배경 · 하늘</small><em>PASS 1 결과 이미지를 사용</em></button>
+</section>
+<div class="stage-instruction" id="stageInstruction"><strong>현재 단계: PASS 1</strong> · 건축물 표면만 실사화합니다. 도로·조경·하늘·배경은 새로 만들거나 변경하지 말고 원본 상태로 유지하세요.</div>
+<div class="workspace">
+<main class="left">
+
+<section class="card" data-pass="1">
+  <div class="section-head"><div><div class="eyebrow">00 · WORKFLOW</div><h2>프로젝트 프리셋</h2><div class="desc">프로젝트 유형을 먼저 고르면 실제 건축 CG에서 자주 쓰는 기본 조건을 한 번에 맞춥니다. 이후 필요한 항목만 조정하세요.</div></div><span class="tool-tag">NO MANUAL PROMPT WRITING</span></div>
+  <div class="preset-row" id="presetRow">
+    <button class="preset" data-preset="office">도심 오피스</button>
+    <button class="preset" data-preset="residential">공동주택</button>
+    <button class="preset" data-preset="public">공공청사</button>
+    <button class="preset" data-preset="culture">문화시설</button>
+    <button class="preset" data-preset="campus">학교·연구시설</button>
+    <button class="preset" data-preset="house">교외 주택</button>
+    <button class="preset" data-preset="waterfront">수변 복합시설</button>
+  </div>
+  <div style="height:10px"></div>
+  <div class="mode-grid" data-group="workflow">
+    <button class="mode active" data-value="twoStep"><strong>2단계 분할</strong><span>건축·재료를 먼저 확정하고 대지·배경을 후처리</span></button>
+    <button class="mode" data-value="single"><strong>통합 1회</strong><span>한 번에 완성도 높은 전체 장면 생성</span></button>
+    <button class="mode" data-value="repair"><strong>수정·복구</strong><span>생성 결과의 형태·구도·재료·환경 오류만 교정</span></button>
+  </div>
+</section>
+
+<section class="card" data-pass="1">
+  <div class="section-head"><div><div class="eyebrow">01 · SOURCE</div><h2>기준 이미지</h2><div class="desc">3D 모델링 툴에서 원하는 카메라를 먼저 확정한 뒤 캡처합니다. 이 이미지는 설계의 기준이며 AI는 새 건물을 설계하지 않습니다.</div></div><span class="tool-tag" id="imageBadge">REFERENCE REQUIRED</span></div>
+  <div class="ref-wrap">
+    <div>
+      <div class="upload" id="dropzone">
+        <input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+        <div class="upload-copy" id="uploadCopy"><strong>3D 모델 캡처 이미지 첨부</strong><span>PNG · JPG · WEBP / 드래그 앤 드롭</span><button class="btn primary" id="chooseBtn">이미지 선택</button></div>
+        <img id="preview" alt="reference preview">
+        <button class="btn" id="removeBtn" style="display:none;position:absolute;right:9px;top:9px">제거</button>
+      </div>
+      <div class="status" id="uploadStatus">기준 이미지가 없습니다.</div>
+    </div>
+    <div class="ref-steps">
+      <div class="ref-step"><b>STEP A · 모델링</b><span>형태 50% 완성 상태라도 괜찮습니다. AI가 단순한 매스를 새로운 디자인으로 재해석하지 않도록 합니다.</span></div>
+      <div class="ref-step"><b>STEP B · 카메라 확정</b><span>원하는 조감·투시도 뷰를 3D 툴에서 먼저 결정하세요. V5.2는 그 구도를 기준으로만 실사화합니다.</span></div>
+      <div class="ref-step"><b>STEP C · 재료/환경 지정</b><span>사용자는 목록을 선택하고, 시스템이 PBR·사이트·조명 언어를 자동으로 붙입니다.</span></div>
+      <div class="card-note note-good"><strong>핵심 원칙</strong><br>형상과 카메라는 보호 대상. 재료·조경·배경·하늘·빛은 생성 대상.</div>
+    </div>
+  </div>
+</section>
+
+<section class="card" data-pass="1">
+  <div class="section-head"><div><div class="eyebrow">02 · DESIGN LOCK</div><h2>형상 보존 전략</h2><div class="desc">AI가 그럴듯함을 위해 설계를 바꾸는 것을 막기 위한 가장 중요한 단계입니다.</div></div><span class="tool-tag" id="lockBadge">HARD LOCK</span></div>
+  <div class="mode-grid" data-group="fidelity">
+    <button class="mode active" data-value="hard"><strong>설계 보존</strong><span>형상·층수·개구부·실루엣·카메라를 최대한 고정</span></button>
+    <button class="mode" data-value="balanced"><strong>표현 보완</strong><span>형상은 고정하고 단순한 모델링 부분의 표현만 보완</span></button>
+    <button class="mode" data-value="presentation"><strong>홍보 이미지</strong><span>형상은 고정하고 사진적 연출·환경 완성도를 강화</span></button>
+  </div>
+  <div style="height:10px"></div>
+  <div class="check-grid">
+    <label class="check"><input type="checkbox" id="lockSilhouette" checked>건축물 실루엣 고정</label>
+    <label class="check"><input type="checkbox" id="lockMass" checked>매스·층수·비례 고정</label>
+    <label class="check"><input type="checkbox" id="lockOpenings" checked>창·문·개구부 고정</label>
+    <label class="check"><input type="checkbox" id="lockFacade" checked>파사드 분할·라인 고정</label>
+    <label class="check"><input type="checkbox" id="lockRoof" checked>지붕·슬래브 고정</label>
+    <label class="check"><input type="checkbox" id="lockFootprint" checked>건축물 위치·풋프린트 고정</label>
+  </div>
+  <div style="height:9px"></div>
+  <div class="card-note note-warn">V5.2는 <strong>“설계 보존 → 표현 완성”</strong>의 순서를 지킵니다. 디자인 향상을 원해도 형상 자체를 새로 만들지 않고 재료·빛·환경의 완성도로 차이를 만듭니다.</div>
+</section>
+
+<section class="card" data-pass="1">
+  <div class="eyebrow">03 · CAMERA</div><h2>뷰·카메라·사진 언어</h2><div class="desc">카메라 위치는 3D 캡처를 기준으로 고정하고, 선택값은 현재 뷰에 맞는 사진적 특성을 설명하는 역할을 합니다.</div>
+  <div class="grid4">
+    <div class="field"><label>뷰 유형</label><select id="view"><option value="match">현재 뷰에 맞춤 · 원본 뷰 유지</option><option value="eye">아이레벨 투시도</option><option value="high">고각 투시도</option><option value="aerial">조감·버드아이</option><option value="low">로우앵글 투시도</option></select></div>
+    <div class="field"><label>렌즈 특성</label><select id="lens"><option value="match">현재 뷰에 맞춤</option><option value="24">24mm 건축 광각</option><option value="28">28mm 자연스러운 광각</option><option value="35">35mm 자연 원근</option><option value="50">50mm 압축 원근</option></select></div>
+    <div class="field"><label>카메라 높이</label><select id="camHeight"><option value="match">캡처 뷰 그대로</option><option value="1.6">약 1.6m</option><option value="3">약 3m</option><option value="8">약 8m</option><option value="20">20m 이상</option></select></div>
+    <div class="field"><label>화면 비율</label><select id="aspect"><option value="reference">원본 비율 유지</option><option value="16x9">16:9</option><option value="3x2">3:2</option><option value="4x5">4:5</option><option value="1x1">1:1</option></select></div>
+    <div class="field"><label>수직선</label><select id="vertical"><option value="corrected">건축 사진처럼 정돈</option><option value="original">원본 원근 유지</option></select></div>
+    <div class="field"><label>초점</label><select id="dof"><option value="deep">Deep Focus · 건물 전체 선명</option><option value="moderate">Moderate · 배경 절제</option><option value="shallow">Shallow · 홍보용 선택</option></select></div>
+    <div class="field"><label>노출</label><select id="exposure"><option value="balanced">균형 잡힌 노출</option><option value="bright">깨끗하고 약간 밝게</option><option value="dramatic">입면 모델링 강조</option></select></div>
+    <div class="field"><label>사진 문법</label><select id="photoStyle"><option value="architectural">전문 건축사진</option><option value="magazine">건축잡지 에디토리얼</option><option value="realestate">프리미엄 부동산</option><option value="documentation">설계 기록사진</option><option value="cinematic">절제된 시네마틱</option></select></div>
+  </div>
+  <div style="height:9px"></div>
+  <div class="card-note">카메라를 바꾸고 싶다면 3D 모델링 툴에서 새 뷰를 만든 뒤 캡처하세요. V5.2 프롬프트 안에서는 <strong>새 카메라를 임의로 만들지 않는 것</strong>을 원칙으로 합니다.</div>
+</section>
+
+<section class="card" data-pass="1">
+  <div class="eyebrow">04 · MATERIAL SYSTEM</div><h2>건축 재료 시스템 · V5.2</h2><div class="desc">각 재료에 Rhino Material ID 색상을 지정합니다. 같은 색상은 이미지 전체에서 같은 재료 영역으로 인식하며, 재료 이름과 색상은 독립적으로 설정할 수 있습니다.</div>
+  <div class="material-system">
+    <div class="material-grid">
+      <div class="material-card">
+        <div class="material-head"><span class="material-name">주 외장</span><span class="tool-tag">ID 01</span></div>
+        <div class="id-color-control"><input id="mainMatColor" type="color" value="#ff0000" title="주 외장 ID 색상"><input id="mainMatColorHex" class="id-hex" type="text" value="#FF0000" maxlength="7"><button class="sample-btn" type="button" data-sample="mainMatColor">ID 이미지에서 선택</button></div>
+        <div style="height:7px"></div><select id="mainMat"><option value="concrete">노출콘크리트</option><option value="stone">자연석</option><option value="brick">벽돌</option><option value="metal">금속 패널</option><option value="wood">외장 목재</option><option value="paint">도장 외장</option><option value="terracotta">테라코타</option><option value="custom">직접 입력</option></select>
+        <div class="direct-input" id="mainMatCustomWrap" style="display:none"><input id="mainMatCustom" type="text" placeholder="예: 밝은 아이보리색 초고성능 콘크리트, 미세한 기포와 거친 질감"></div>
+        <div class="material-hint">기본 ID 색상: 빨강 · #FF0000</div>
+      </div>
+      <div class="material-card">
+        <div class="material-head"><span class="material-name">보조 외장</span><span class="tool-tag">ID 02</span></div>
+        <div class="id-color-control"><input id="subMatColor" type="color" value="#ffff00" title="보조 외장 ID 색상"><input id="subMatColorHex" class="id-hex" type="text" value="#FFFF00" maxlength="7"><button class="sample-btn" type="button" data-sample="subMatColor">ID 이미지에서 선택</button></div>
+        <div style="height:7px"></div><select id="subMat"><option value="none">없음</option><option value="darkMetal">다크 브론즈 금속</option><option value="darkStone">짙은 석재</option><option value="woodAccent">목재 포인트</option><option value="terracottaAccent">테라코타 포인트</option><option value="custom">직접 입력</option></select>
+        <div class="direct-input" id="subMatCustomWrap" style="display:none"><input id="subMatCustom" type="text" placeholder="예: 짙은 회색 천연석 패널, 혼드 마감, 은은한 색상 편차"></div>
+        <div class="material-hint">기본 ID 색상: 노랑 · #FFFF00</div>
+      </div>
+      <div class="material-card">
+        <div class="material-head"><span class="material-name">유리</span><span class="tool-tag">ID 03</span></div>
+        <div class="id-color-control"><input id="glassColor" type="color" value="#0000ff" title="유리 ID 색상"><input id="glassColorHex" class="id-hex" type="text" value="#0000FF" maxlength="7"><button class="sample-btn" type="button" data-sample="glassColor">ID 이미지에서 선택</button></div>
+        <div style="height:7px"></div><select id="glass"><option value="lowe">중성 Low-E 로이유리</option><option value="clear">투명 클리어 유리</option><option value="bronze">브론즈 틴트 유리</option><option value="bluegray">블루그레이 반사유리</option><option value="frit">패턴/Frit 유리</option><option value="custom">직접 입력</option></select>
+        <div class="direct-input" id="glassCustomWrap" style="display:none"><input id="glassCustom" type="text" placeholder="예: 아주 옅은 회청색 저철분 복층유리, 약한 하늘 반사와 높은 투과율"></div>
+        <div class="material-hint">기본 ID 색상: 파랑 · #0000FF</div>
+      </div>
+      <div class="material-card">
+        <div class="material-head"><span class="material-name">금속·창호 프레임</span><span class="tool-tag">ID 04</span></div>
+        <div class="id-color-control"><input id="frameColor" type="color" value="#00ff00" title="프레임 ID 색상"><input id="frameColorHex" class="id-hex" type="text" value="#00FF00" maxlength="7"><button class="sample-btn" type="button" data-sample="frameColor">ID 이미지에서 선택</button></div>
+        <div style="height:7px"></div><select id="frame"><option value="black">슬림 블랙 알루미늄</option><option value="bronze">다크 브론즈 알루미늄</option><option value="gray">뉴트럴 그레이 알루미늄</option><option value="wood">천연목 프레임</option><option value="custom">직접 입력</option></select>
+        <div class="direct-input" id="frameCustomWrap" style="display:none"><input id="frameCustom" type="text" placeholder="예: 다크 브론즈 아노다이징 알루미늄 프레임, 슬림 단면, 반무광 표면"></div>
+        <div class="material-hint">기본 ID 색상: 녹색 · #00FF00</div>
+      </div>
+      <div class="material-card">
+        <div class="material-head"><span class="material-name">지붕·캐노피</span><span class="tool-tag">ID 05</span></div>
+        <div class="id-color-control"><input id="roofColor" type="color" value="#ff8000" title="지붕/캐노피 ID 색상"><input id="roofColorHex" class="id-hex" type="text" value="#FF8000" maxlength="7"><button class="sample-btn" type="button" data-sample="roofColor">ID 이미지에서 선택</button></div>
+        <div style="height:7px"></div><select id="roof"><option value="flat">평지붕·깔끔한 파라펫</option><option value="metal">스탠딩심 금속지붕</option><option value="slab">노출 콘크리트 지붕</option><option value="tile">현대식 타일 지붕</option><option value="custom">직접 입력</option></select>
+        <div class="direct-input" id="roofCustomWrap" style="display:none"><input id="roofCustom" type="text" placeholder="예: 짙은 회색 스탠딩심 금속 캐노피, 낮은 반사율, 얇고 정밀한 접합부"></div>
+        <div class="material-hint">기본 ID 색상: 주황 · #FF8000</div>
+      </div>
+      <div class="material-card">
+        <div class="material-head"><span class="material-name">기단·저층부</span><span class="tool-tag">ID 06</span></div>
+        <div class="id-color-control"><input id="baseColor" type="color" value="#ff00ff" title="기단/저층부 ID 색상"><input id="baseColorHex" class="id-hex" type="text" value="#FF00FF" maxlength="7"><button class="sample-btn" type="button" data-sample="baseColor">ID 이미지에서 선택</button></div>
+        <div style="height:7px"></div><select id="base"><option value="granite">진회색 혼드 화강석</option><option value="lightStone">밝은 자연석</option><option value="concrete">노출콘크리트</option><option value="porcelain">대형 포세린</option><option value="custom">직접 입력</option></select>
+        <div class="direct-input" id="baseCustomWrap" style="display:none"><input id="baseCustom" type="text" placeholder="예: 짙은 회색 천연석 기단, 혼드 마감, 큰 모듈과 절제된 줄눈"></div>
+        <div class="material-hint">기본 ID 색상: 마젠타 · #FF00FF</div>
+      </div>
+    </div>
+
+    <div class="id-panel">
+      <div class="id-panel-head"><div><div class="group-title">Rhino Material ID 이미지</div><div class="muted-note">Rhino 8의 CG_ID Display Mode에서 캡처한 이미지를 넣으면, 아래 이미지에서 색상을 클릭해 현재 재료 항목에 바로 연결할 수 있습니다.</div></div><div class="id-upload"><input id="idImageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden><button class="btn small" id="idImageChoose" type="button">ID 이미지 선택</button><button class="btn small" id="idImageClear" type="button">이미지 제거</button></div></div>
+      <div class="id-preview-wrap">
+        <div class="id-canvas-wrap" id="idCanvasWrap"><div class="upload-copy" id="idEmpty"><strong>Material ID 이미지가 없습니다.</strong><span>빨강/노랑/파랑/녹색 등 재료 ID 색상이 들어간 Rhino 캡처를 첨부하세요.</span></div><canvas id="idCanvas" style="display:none"></canvas></div>
+        <div class="id-info">
+          <div class="swatch-lg" id="sampleSwatch" style="background:#000000"></div>
+          <b>현재 색상 샘플</b><div id="sampleRGB">RGB: -</div><div id="sampleHEX">HEX: -</div><div id="sampleTarget">연결 대상: 없음</div>
+          <label class="check" style="margin-top:9px"><input type="checkbox" id="idEdgeBlend" checked>재료 경계의 섞인 색은 가장 가까운 ID 색으로 인식</label>
+          <label class="check" style="margin-top:9px"><input type="checkbox" id="sameColorAll" checked>같은 색상 전체를 동일 재료로 인식</label><label class="check" style="margin-top:7px"><input type="checkbox" id="attachIdImage"><b>ID 이미지를 AI에 두 번째 이미지로 함께 첨부</b> (V5.2.1 · 권장)</label><div class="muted-note" style="margin-top:4px">체크하면 프롬프트가 2장 첨부 기준으로 바뀝니다. AI 화면에 <b>① 3D 캡처 → ② ID 이미지</b> 순서로 함께 올리세요. ID 이미지는 같은 뷰·같은 크기로 캡처해야 합니다.</div>
+          <div class="muted-note" style="margin-top:8px">ID 캡처의 재료 경계에는 두 색이 섞인 픽셀이 생길 수 있습니다(안티앨리어싱). 체크하면 AI가 이 픽셀을 별도 재료로 오해하지 않도록 지시합니다. 같은 색상이 여러 곳에 있어도 한 번에 같은 재료 영역으로 연결됩니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="height:10px"></div>
+  <div class="grid4">
+    <div class="field"><label>표면 거칠기</label><select id="roughness"><option value="natural">자연스러운 중간 거칠기</option><option value="smooth">매끈한 건축 마감</option><option value="matte">무광 중심</option><option value="textured">미세 질감 강조</option></select></div>
+    <div class="field"><label>표면 디테일</label><select id="surface"><option value="natural">자연스러운 미세 변화</option><option value="clean">깨끗한 신축 표현</option><option value="detailed">고해상도 질감</option><option value="crafted">수공예적 재료감</option></select></div>
+    <div class="field"><label>줄눈·접합부</label><select id="joints"><option value="subtle">절제된 줄눈</option><option value="visible">읽기 쉬운 조인트</option><option value="minimal">최소화</option><option value="structural">구조적 분할 강조</option></select></div>
+    <div class="field"><label>사용감</label><select id="weathering"><option value="new">신축 · 거의 없음</option><option value="subtle">미세한 자연 노출</option><option value="real">실제 사용건물 수준</option><option value="aged">중간 정도의 자연 노후</option></select></div>
+  </div>
+  <div style="height:10px"></div>
+  <label class="check"><input type="checkbox" id="materialBoundaries" checked>재료 경계는 모델링에 존재하는 표면 범위를 그대로 유지하고, 재료를 바꾸기 위해 새 파사드나 몰딩을 만들지 않음</label>
+</section>
+
+<section class="card pass2-reminder" data-pass="2">
+  <div class="eyebrow">PASS 2 · INPUT IMAGE</div><h2>1단계 결과 이미지 준비</h2>
+  <div class="card-note note-good"><strong>중요:</strong> PASS 2를 실행할 때는 원본 3D 캡처가 아니라 <strong>PASS 1에서 생성한 건축물 이미지</strong>를 새 대화/편집 입력으로 첨부하세요. 필요하면 원본 3D 캡처도 함께 첨부해 형태와 카메라의 기준으로 지정합니다.</div>
+  <ol class="pass-list"><li>PASS 1 결과 이미지를 PNG 또는 JPG로 저장합니다.</li><li>아래에서 대지·도로·조경·배경·하늘 조건을 선택합니다.</li><li>오른쪽의 PASS 2 프롬프트를 복사해 이미지와 함께 실행합니다.</li></ol>
+</section>
+<section class="card" data-pass="2">
+  <div class="eyebrow">05 · SITE ZONING</div><h2>대지·차도·보도·녹지</h2><div class="desc">AI가 도로와 잔디를 혼동하지 않도록 공간을 명확한 구역으로 정의합니다.</div>
+  <div class="grid3">
+    <div class="field"><label>대지 성격</label><select id="site"><option value="urbanOffice">도심 업무지구</option><option value="residential">중층 주거지</option><option value="civic">공공·행정 중심지</option><option value="culture">문화·예술 지구</option><option value="campus">캠퍼스</option><option value="suburban">교외 저밀도</option><option value="waterfront">수변·해안</option></select></div>
+    <div class="field"><label>차도 포장 재료</label><select id="road"><option value="asphalt">다크 아스팔트</option><option value="concrete">콘크리트 포장</option><option value="paver">블록 포장</option><option value="minimal">차도 거의 없음</option></select></div>
+    <div class="field"><label>도로 유형·차선 구성</label><select id="roadLayout"><option value="twoLane">2차선 도로</option><option value="arterial">4차선 이상 간선도로</option><option value="pedestrianPriority">보행자 우선 도로</option><option value="internal">단지 내 도로</option><option value="none">도로 없음</option><option value="custom">직접 입력</option></select></div>
+    <div class="field"><label>차선·노면 표시</label><select id="laneMarkings"><option value="standard">표준 흰색 차선 + 중앙선</option><option value="twoLaneYellow">2차선 도로 · 황색 중앙선 + 흰색 가장자리선</option><option value="multiLane">다차선 흰색 차선 분리선 + 방향 화살표</option><option value="crosswalk">횡단보도·정지선 포함</option><option value="minimal">최소한의 노면 표시</option><option value="none">차선 표시 없음</option></select></div>
+    <div class="field" id="roadLayoutCustomWrap" style="display:none"><label>도로 유형 직접 입력</label><input type="text" id="roadLayoutCustom" placeholder="예: 왕복 3차선, 중앙분리대 없음, 제한속도 30km/h"></div>
+    <div class="field"><label>보도</label><select id="sidewalk"><option value="stone">대형 석재 블록</option><option value="concrete">노출/콘크리트 보도</option><option value="brick">벽돌·클레이 블록</option><option value="porcelain">밝은 포세린 포장</option></select></div>
+    <div class="field"><label>진입·광장</label><select id="plaza"><option value="stone">석재 포장 + 벤치</option><option value="minimal">최소 포장 + 플랜터</option><option value="green">녹지 중심 열린 광장</option><option value="dropoff">차량 드롭오프 중심</option></select></div>
+    <div class="field"><label>주차·차량 동선</label><select id="parking"><option value="existing">원본 위치 유지</option><option value="visible">주차가 일부 보이게</option><option value="hidden">주요 시야에서 최소화</option><option value="none">표시하지 않음</option></select></div>
+    <div class="field"><label>노면 상태</label><select id="roadCondition"><option value="dry">건조한 노면</option><option value="afterRain">비 갠 직후 · 은은한 반사</option><option value="wet">젖은 노면 · 강한 반사</option></select></div>
+  </div>
+  <div class="card-note" style="margin-top:9px">차도 포장 재료와 도로 유형·차선 표시는 별도로 설정합니다. 도로의 위치·폭·진행 방향은 기준 이미지에 맞추고, 차선과 횡단보도는 기존 차도 영역 안에서만 생성하도록 지시합니다.</div>
+  <div style="height:10px"></div>
+  <div class="grid3">
+    <div class="field"><label>수목·식재 성격</label><select id="planting"><option value="urban">가로수 + 관목 + 잔디</option><option value="formal">정형식재 + 낮은 생울타리</option><option value="natural">자연형 식재 + 초화류</option><option value="minimal">건축적 최소 조경</option><option value="lush">풍성한 녹지 + 큰 교목</option></select></div>
+    <div class="field"><label>식재 밀도</label><select id="plantDensity"><option value="sparse">여유 있게</option><option value="medium">중간</option><option value="dense">풍부하게</option></select></div>
+    <div class="field"><label>계절</label><select id="season"><option value="summer">여름 · 짙은 녹음</option><option value="spring">봄 · 신선한 식재</option><option value="autumn">가을 · 절제된 단풍</option><option value="winter">겨울 · 구조미 중심</option></select></div>
+  </div>
+  <div style="height:10px"></div>
+  <div class="grid2">
+    <div class="field"><label>차량 수</label><div class="segment" data-group="cars"><button class="seg-btn active" data-value="none">없음</button><button class="seg-btn" data-value="few">소수</button><button class="seg-btn" data-value="normal">보통</button><button class="seg-btn" data-value="busy">많음</button></div></div>
+    <div class="field"><label>보행자 수</label><div class="segment" data-group="people"><button class="seg-btn" data-value="none">없음</button><button class="seg-btn active" data-value="few">소수</button><button class="seg-btn" data-value="normal">보통</button><button class="seg-btn" data-value="many">많음</button></div></div>
+  </div>
+</section>
+
+<section class="card" data-pass="2">
+  <div class="eyebrow">06 · LANDSCAPE</div><h2>조경 디렉션</h2><div class="desc">조경이 건축을 장식하는 요소가 아니라, 실제 대지 계획처럼 읽히도록 구성합니다.</div>
+  <div class="grid4">
+    <div class="field"><label>교목</label><select id="trees"><option value="deciduous">자연스러운 활엽 교목</option><option value="evergreen">상록수 중심</option><option value="mixed">활엽 + 상록 혼식</option><option value="ornamental">건축적 수형의 교목</option></select></div>
+    <div class="field"><label>관목</label><select id="shrubs"><option value="low">낮은 관목·지피</option><option value="mid">중간 높이 관목</option><option value="hedge">정돈된 생울타리</option><option value="mixed">다층 식재</option></select></div>
+    <div class="field"><label>초화·지피</label><select id="groundcover"><option value="lawn">잔디 중심</option><option value="grasses">그라스·초화 중심</option><option value="mixed">잔디 + 초화 혼합</option><option value="minimal">최소</option></select></div>
+    <div class="field"><label>조경 유지관리</label><select id="maintenance"><option value="well">잘 관리된 신축 외부공간</option><option value="natural">자연스러운 관리 상태</option><option value="minimal">최소 관리형</option></select></div>
+  </div>
+  <div style="height:10px"></div>
+  <div class="check-grid">
+    <label class="check"><input type="checkbox" id="landscapeNoObscure" checked>수목이 건물의 주요 파사드를 가리지 않음</label>
+    <label class="check"><input type="checkbox" id="realScale" checked>식물은 실제 건축 스케일에 맞춤</label>
+    <label class="check"><input type="checkbox" id="noCopyTrees" checked>복제된 것처럼 보이는 반복 식재 금지</label>
+    <label class="check"><input type="checkbox" id="peopleScale" checked>사람·차량은 스케일 기준으로 사용</label>
+    <label class="check"><input type="checkbox" id="cleanEdges" checked>도로·보도·녹지 경계 선명</label>
+    <label class="check"><input type="checkbox" id="landFurniture">벤치·볼라드·사인 등 최소 공공시설</label>
+  </div>
+</section>
+
+<section class="card" data-pass="2">
+  <div class="eyebrow">07 · CONTEXT</div><h2>주변 건축물·배경·원경</h2><div class="desc">주변 환경은 실제 도시의 규모와 거리감을 만들되, 주 건축물의 시각적 우선순위를 유지합니다.</div>
+  <div class="grid4">
+    <div class="field"><label>주변 맥락</label><select id="background"><option value="midUrban">중층 도시 + 원경 산</option><option value="denseCity">고밀도 도심 스카이라인</option><option value="residentialBg">중저층 주거지</option><option value="civicBg">공공·문화시설 주변</option><option value="campusBg">캠퍼스·녹지</option><option value="suburbanBg">교외 저밀도 + 먼 산</option><option value="waterBg">수변 + 원경 도시</option></select></div>
+    <div class="field"><label>주변 건물 높이</label><select id="bgHeight"><option value="low">주로 저층</option><option value="mid">저층~중층</option><option value="high">중층~고층 혼합</option><option value="tower">고층 타워 포함</option></select></div>
+    <div class="field"><label>배경 대비</label><select id="bgContrast"><option value="subtle">주 건물보다 낮게</option><option value="balanced">균형</option><option value="rich">배경 디테일 풍부</option></select></div>
+    <div class="field"><label>원경</label><select id="distant"><option value="mountain">산 능선</option><option value="skyline">원경 스카이라인</option><option value="treeLine">수목 경계</option><option value="open">열린 수평선</option><option value="water">수면·수변 원경</option></select></div>
+  </div>
+  <div style="height:9px"></div>
+  <div class="check-grid">
+    <label class="check"><input type="checkbox" id="contextScale" checked>주변 건물·차량·사람의 스케일 일관성</label>
+    <label class="check"><input type="checkbox" id="atmoDepth" checked>거리별 대기 원근</label>
+    <label class="check"><input type="checkbox" id="bgNoDominate" checked>배경이 주 건축물보다 강해지지 않음</label>
+  </div>
+</section>
+
+<section class="card" data-pass="2">
+  <div class="eyebrow">08 · SKY + WEATHER</div><h2>하늘·날씨·대기</h2>
+  <div class="grid4">
+    <div class="field"><label>하늘</label><select id="sky"><option value="clear">맑은 청색 하늘</option><option value="thinCloud">얇은 고층운</option><option value="partly">부분적 구름</option><option value="overcast">부드러운 흐림</option><option value="goldenCloud">골든아워의 얇은 구름</option><option value="stormSoft">극적이지 않은 흐린 하늘</option><option value="blueHour">블루아워</option></select></div>
+    <div class="field"><label>대기 투명도</label><select id="atmosphere"><option value="clear">선명하고 깨끗함</option><option value="slightHaze">약한 도시 헤이즈</option><option value="humid">약간 습한 대기</option><option value="soft">부드러운 원경 대기</option></select></div>
+    <div class="field"><label>날씨</label><select id="weather"><option value="fair">맑음</option><option value="partly">부분적 구름</option><option value="overcast">흐림</option><option value="afterRain">비 갠 뒤</option><option value="evening">맑은 저녁</option></select></div>
+    <div class="field"><label>대기감</label><select id="airMood"><option value="neutral">중립적</option><option value="fresh">맑고 선명</option><option value="soft">부드럽고 차분</option><option value="warm">따뜻한 대기</option></select></div>
+  </div>
+</section>
+
+<section class="card" data-pass="1">
+  <div class="eyebrow">09 · LIGHTING DIRECTOR</div><h2>시간·태양 방향·조명</h2><div class="desc">건물·조경·자동차·배경의 그림자와 반사가 하나의 광원 체계로 읽히도록 구성합니다.</div>
+  <div class="grid3">
+    <div class="field"><label>시간대</label><select id="time"><option value="morning">오전 · 깨끗한 자연광</option><option value="noon">정오 · 높은 태양</option><option value="afternoon" selected>오후 · 약간 따뜻한 자연광</option><option value="golden">골든아워</option><option value="blue">블루아워</option><option value="night">야간</option></select></div>
+    <div class="field"><label>태양 방향 · 8방향(45° 간격)</label><select id="sunDir"><option value="frontLeft">카메라 정면 좌측 45°</option><option value="front">카메라 정면</option><option value="right">카메라 정면 우측 45°</option><option value="rightSide">카메라 우측 90°</option><option value="rearRight">카메라 뒤 우측 45°</option><option value="back">카메라 뒤쪽 역광</option><option value="rearLeft">카메라 뒤 좌측 45°</option><option value="leftSide">카메라 좌측 90°</option></select></div>
+    <div class="field"><label>그림자 특성</label><select id="shadow"><option value="soft">부드럽고 긴 그림자</option><option value="balanced">중간 길이·균형</option><option value="crisp">짧고 선명한 그림자</option></select></div>
+  </div>
+  <div style="height:11px"></div>
+  <div class="orbit-layout">
+    <div class="orbit" id="orbit" aria-label="태양 방향 선택 다이어그램"><div class="label">건물</div><button type="button" class="sun-point" data-sundir="front" style="left:50%;top:8%" aria-label="카메라 정면"></button><button type="button" class="sun-point" data-sundir="right" style="left:80%;top:22%" aria-label="카메라 정면 우측 45도"></button><button type="button" class="sun-point" data-sundir="rightSide" style="left:92%;top:50%" aria-label="카메라 우측 90도"></button><button type="button" class="sun-point" data-sundir="rearRight" style="left:80%;top:78%" aria-label="카메라 뒤 우측 45도"></button><button type="button" class="sun-point" data-sundir="back" style="left:50%;top:92%" aria-label="카메라 뒤쪽"></button><button type="button" class="sun-point" data-sundir="rearLeft" style="left:20%;top:78%" aria-label="카메라 뒤 좌측 45도"></button><button type="button" class="sun-point" data-sundir="leftSide" style="left:8%;top:50%" aria-label="카메라 좌측 90도"></button><button type="button" class="sun-point" data-sundir="frontLeft" style="left:20%;top:22%" aria-label="카메라 정면 좌측 45도"></button><div class="cam"></div></div>
+    <div>
+      <div class="field"><label>태양 고도</label><div class="range"><input id="sunElev" type="range" min="10" max="70" value="35"><output id="sunElevOut">35°</output></div></div>
+      <div class="legend">건물을 중심으로 8방향을 45° 간격으로 선택할 수 있습니다. 다이어그램의 원형 점을 누르거나 위의 목록에서 방향을 선택하세요.</div><div class="legend" id="sunDirectionText" aria-live="polite"></div>
+      <div style="height:9px"></div>
+      <div class="check-grid">
+        <label class="check"><input type="checkbox" id="interiorLight" checked>실내 따뜻한 조명</label>
+        <label class="check"><input type="checkbox" id="entryLight">입구 포인트 조명</label>
+        <label class="check"><input type="checkbox" id="landLight">조경 조명</label>
+        <label class="check"><input type="checkbox" id="streetLight">가로등</label>
+        <label class="check"><input type="checkbox" id="vehicleLight">차량 라이트</label>
+        <label class="check"><input type="checkbox" id="signageMin" checked>사인·문자 최소화</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="card" data-pass="1">
+  <div class="eyebrow">10 · PHOTOGRAPHIC FINISH</div><h2>최종 사진 완성도</h2>
+  <div class="grid4">
+    <div class="field"><label>색감</label><select id="color"><option value="neutral">중립적 자연색</option><option value="warm">약간 따뜻한 색감</option><option value="cool">약간 차가운 색감</option><option value="premium">절제된 고급 색보정</option></select></div>
+    <div class="field"><label>대비</label><select id="contrast"><option value="natural">자연스러운 대비</option><option value="soft">부드러운 대비</option><option value="defined">입면 디테일 강조</option><option value="cinematic">절제된 시네마틱 대비</option></select></div>
+    <div class="field"><label>유리 반사</label><select id="glassReflection"><option value="restrained">절제된 자연 반사</option><option value="sky">하늘 반사 강조</option><option value="context">주변 건물 반사 강조</option><option value="balanced">균형</option></select></div>
+    <div class="field"><label>실사 강도</label><select id="photorealism"><option value="high">고급 건축사진 수준</option><option value="veryHigh">최대한의 사진 사실성</option><option value="presentation">홍보 이미지 수준</option></select></div>
+  </div>
+  <div style="height:10px"></div>
+  <div class="check-grid">
+    <label class="check"><input type="checkbox" id="pbr" checked>PBR 기반 재질 거동</label>
+    <label class="check"><input type="checkbox" id="gi" checked>자연스러운 간접광·반사광</label>
+    <label class="check"><input type="checkbox" id="contact" checked>접촉 그림자·바닥 접지감</label>
+    <label class="check"><input type="checkbox" id="noBloom" checked>과도한 Bloom 금지</label>
+    <label class="check"><input type="checkbox" id="noHDR" checked>과도한 HDR·과채도 금지</label>
+    <label class="check"><input type="checkbox" id="noIllustration" checked>일러스트·콘셉트아트 느낌 금지</label>
+  </div>
+</section>
+
+<section class="card" data-pass="both">
+  <div class="eyebrow">11 · AI SAFETY / QA</div><h2>자동 검수 규칙</h2><div class="desc">선택한 조건을 바탕으로 결과에서 자주 발생하는 AI 오류를 사전에 차단하는 문장을 자동으로 붙입니다.</div>
+  <div class="check-grid">
+    <label class="check"><input type="checkbox" id="noRedesign" checked>건축물 재설계 금지</label>
+    <label class="check"><input type="checkbox" id="noReframe" checked>카메라 이동·재구도 금지</label>
+    <label class="check"><input type="checkbox" id="noExtraFloors" checked>없는 층·창·문 추가 금지</label>
+    <label class="check"><input type="checkbox" id="noWarp" checked>왜곡·어안·휘어진 수직선 금지</label>
+    <label class="check"><input type="checkbox" id="noSiteSwap" checked>도로·보도·녹지 영역 바꾸지 않기</label>
+    <label class="check"><input type="checkbox" id="noObscure" checked>나무·차량·사람이 건물 가리지 않기</label>
+    <label class="check"><input type="checkbox" id="noRepeat" checked>반복 식재·복제 객체 금지</label>
+    <label class="check"><input type="checkbox" id="noPlastic" checked>플라스틱·가짜 CGI 질감 금지</label>
+    <label class="check"><input type="checkbox" id="noLightConflict" checked>광원·그림자 방향 충돌 금지</label>
+  </div>
+  <div style="height:10px"></div>
+  <div class="grid2">
+    <label class="check"><input type="checkbox" id="noText" checked>불필요한 간판·문자·로고 생성 억제</label>
+    <label class="check"><input type="checkbox" id="noPeopleArtifacts" checked>사람·차량 형태 오류 최소화</label>
+  </div>
+</section>
+
+<section class="card" data-pass="both">
+  <div class="eyebrow">12 · ENGINE OUTPUT</div><h2>AI 엔진과 출력 정책</h2><div class="desc">사용자가 프롬프트를 직접 쓰지 않습니다. 선택값을 엔진별 문장 구조로 자동 변환합니다.</div>
+  <div class="grid2">
+    <div class="field"><label>AI 엔진</label><div class="segment" data-group="engine"><button class="seg-btn active" data-value="nano">Nano Banana</button><button class="seg-btn" data-value="chatgpt">ChatGPT Images</button><button class="seg-btn" data-value="universal">공통형</button></div></div>
+    <div class="field"><label>프롬프트 출력 방식</label><div class="segment" data-group="promptMode"><button class="seg-btn active" data-value="full">전체 마스터</button><button class="seg-btn" data-value="twoStep">2단계 세트</button><button class="seg-btn" data-value="repair">수정·복구</button><button class="seg-btn" data-value="tag">태그형</button></div></div>
+  </div>
+  <div style="height:10px"></div>
+  <div class="card-note" id="engineNote"></div>
+</section>
+
+</main>
+
+<aside class="right">
+<section class="card output-card">
+  <div class="output-top">
+    <div><div class="eyebrow">AUTO-COMPOSED PROMPT</div><h2>자동 생성 결과</h2><div class="desc">현재 PASS에 해당하는 프롬프트만 표시합니다. 단계별로 복사해 순서대로 실행하세요.</div></div>
+    <div class="output-actions"><button class="btn primary" id="copyAll">전체 복사</button><button class="btn" id="copyVisible">현재 블록 복사</button></div>
+  </div>
+  <div class="prompt-meta" id="promptMeta"></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="prompt-area" id="promptArea"></div>
+  <div class="summary"><strong>현재 작업 세팅</strong><div id="summaryText"></div></div>
+  <div class="hint good" id="successHint"></div>
+  <div class="hint warn" id="warningHint"></div>
+</section>
+</aside>
+</div>
+</div>
+<div class="toast" id="toast">복사했습니다.</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const state={workflow:'twoStep',fidelity:'hard',cars:'none',people:'few',engine:'nano',promptMode:'twoStep'};
+let activePass=1;
+
+const maps={
+  fidelity:{hard:'maximum design fidelity. Preserve the source architecture and camera as hard constraints; do not creatively reinterpret incomplete elements.',balanced:'high design fidelity. Keep all visible geometry and camera fixed while allowing restrained improvement of unfinished material expression.',presentation:'presentation-grade fidelity. Keep the architecture and camera fixed, while allowing stronger photographic, landscape and atmospheric refinement without redesign.'},
+  view:{match:'match the existing view in the reference image exactly; do not reinterpret it as another view type',eye:'eye-level architectural street perspective',high:'high-angle architectural perspective',aerial:'oblique bird’s-eye aerial view',low:'low-angle architectural perspective'},
+  lens:{match:'lens character matched to the reference perspective',24:'24mm wide architectural photography lens character',28:'28mm natural wide-angle architectural lens character',35:'35mm natural perspective lens character',50:'50mm standard lens character with moderate perspective compression'},
+  camHeight:{match:'keep the camera height exactly as shown in the reference capture',1.6:'approximately 1.6 m eye-level camera characteristic',3:'approximately 3 m elevated street-level camera characteristic',8:'approximately 8 m elevated camera characteristic',20:'20 m+ aerial camera characteristic'},
+  aspect:{reference:'preserve the original image aspect ratio and framing', '16x9':'16:9 presentation framing', '3x2':'3:2 photographic framing','4x5':'4:5 vertical presentation framing','1x1':'1:1 square presentation framing'},
+  vertical:{corrected:'professional architectural perspective correction with straight verticals where appropriate',original:'preserve the original perspective and vertical relationship of the reference capture'},
+  dof:{deep:'deep focus so the entire architecture remains consistently readable',moderate:'moderate depth of field with restrained background separation',shallow:'restrained shallow depth of field for presentation imagery only'},
+  exposure:{balanced:'balanced exposure with preserved highlight and shadow detail',bright:'clean slightly bright exposure',dramatic:'controlled contrast that enhances facade depth'},
+  photoStyle:{architectural:'professional architectural photography',magazine:'high-end architecture magazine editorial photography',realestate:'premium real-estate presentation photography',documentation:'neutral architectural documentation photography',cinematic:'restrained cinematic architectural photography'},
+  mainMat:{concrete:'light warm-gray fair-faced exposed concrete with realistic formwork texture, subtle pores and restrained tonal variation',stone:'natural light-toned stone with fine mineral variation and restrained joints',brick:'refined contemporary brick with realistic module scale, subtle mortar joints and tonal variation',metal:'matte architectural metal panels with fine micro-texture, controlled highlights and low-to-medium specular response',wood:'exterior-grade natural timber cladding with believable grain direction and subtle weathering',paint:'smooth matte painted facade with slight surface variation and believable coverage',terracotta:'refined architectural terracotta panels with realistic ceramic texture and tonal variation',custom:''},
+  subMat:{none:'none; keep the existing surface with the primary material treatment',darkMetal:'dark bronze matte metal panels with restrained reflectivity',darkStone:'dark natural stone with low sheen and subtle grain',woodAccent:'natural exterior timber accent surfaces with controlled grain',terracottaAccent:'warm contemporary terracotta accent panels with realistic ceramic surface',custom:''},
+  glass:{lowe:'neutral low-e architectural glazing with realistic transmission, restrained sky reflections and subtle interior visibility',clear:'clear transparent architectural glazing with realistic environmental reflections and visible depth',bronze:'subtle bronze-tinted glazing with realistic reflection-to-transmission balance',bluegray:'blue-gray reflective architectural glazing with controlled environmental reflections',frit:'architectural frit-pattern glazing with realistic pattern scale and controlled transparency',custom:''},
+  frame:{black:'slim black aluminum window frames',bronze:'dark bronze aluminum window frames',gray:'neutral gray aluminum window frames',wood:'natural wood window frames',custom:''},
+  roof:{flat:'flat roof with clean parapet edges and restrained surface detail',metal:'standing-seam metal roof with realistic seam scale and low sheen',slab:'exposed concrete roof slab with subtle surface variation',tile:'contemporary ceramic tiled roof with realistic scale and joints',custom:''},
+  base:{granite:'dark gray honed granite podium with subtle mineral grain',lightStone:'light natural stone base with restrained joint scale',concrete:'exposed concrete base with realistic surface texture',porcelain:'large-format porcelain base surfaces with believable grout scale',custom:''},
+  roughness:{natural:'natural medium roughness appropriate to the specified material',smooth:'smooth refined architectural finish',matte:'predominantly matte material response',textured:'visible but realistic micro-surface texture'},
+  surface:{natural:'natural micro-variation without artificial repetition',clean:'clean new-construction material expression',detailed:'high-resolution material detail without exaggerated texture',crafted:'carefully crafted material character with realistic small imperfections'},
+  joints:{subtle:'subtle joints and panel seams',visible:'clearly readable but realistic panel joints',minimal:'minimal visible joint expression',structural:'structural material divisions are legible without inventing new geometry'},
+  weathering:{new:'new construction with minimal weathering',subtle:'subtle realistic exposure only',real:'realistic occupied-building wear at a restrained level',aged:'visible but tasteful natural aging'},
+  site:{urbanOffice:'dense urban office district with coordinated public realm',residential:'medium-density residential neighborhood',civic:'civic and administrative district with organized public realm',culture:'cultural and arts district with pedestrian emphasis',campus:'institutional campus with generous landscape',suburban:'low-density suburban context',waterfront:'waterfront site with open horizon and landscaped public realm'},
+  road:{asphalt:'dark asphalt vehicle roadway',concrete:'cast concrete vehicle roadway',paver:'paver-block vehicle lane',minimal:'minimal or barely visible vehicle roadway'},
+  roadLayout:{twoLane:'a two-lane, two-way road with one lane in each direction; preserve realistic lane width and road geometry',arterial:'a four-lane or wider urban arterial road with clearly organized traffic lanes and realistic lane widths',pedestrianPriority:'a pedestrian-priority shared street with slow vehicle movement, restrained road markings, and clearly defined pedestrian space',internal:'a low-speed internal development road with simple geometry and restrained markings',none:'no vehicle road; do not invent any roadway',custom:'custom road layout'},
+  laneMarkings:{standard:'apply realistic white lane divider markings and an appropriate centerline, aligned to the existing road direction',twoLaneYellow:'apply a realistic yellow centerline for the two-way road and white edge lines; use accurate road-marking scale',multiLane:'apply clear white lane-divider lines and subtle directional arrows appropriate for a multi-lane arterial road',crosswalk:'include realistic crosswalk stripes and stop lines only at plausible existing intersections or crossings',minimal:'use minimal restrained road markings, only where appropriate for the selected road type',none:'do not add lane lines, centerlines, arrows, crosswalks or other road markings'},
+  sidewalk:{stone:'large-format stone pedestrian paving',concrete:'clean concrete pedestrian sidewalk',brick:'brick or clay-paver pedestrian paving',porcelain:'light porcelain pedestrian paving'},
+  plaza:{stone:'stone-paved entrance forecourt with restrained benches',minimal:'minimal paved forecourt with architectural planters',green:'green-oriented open forecourt integrated with landscape',dropoff:'vehicle drop-off oriented entrance court'},
+  parking:{existing:'keep parking and service circulation in the same locations implied by the reference',visible:'allow a limited amount of parking to be visible while keeping the architecture dominant',hidden:'de-emphasize parking from primary view',none:'do not introduce visible parking unless already present in the reference'},
+  roadCondition:{dry:'dry pavement',afterRain:'recently rained but mostly drying pavement with subtle reflections',wet:'wet pavement with controlled realistic reflections'},
+  planting:{urban:'street trees, low shrubs, lawn and controlled planting beds',formal:'formal planting, low hedges and architectural planters',natural:'naturalistic planting with grasses, shrubs and flowering perennials',minimal:'minimal architectural planting with restrained lawn and planters',lush:'lush mature planting with larger trees and layered greenery'},
+  plantDensity:{sparse:'generous spacing and restrained planting density',medium:'moderate planting density with clear circulation',dense:'rich planting density while preserving architecture and circulation'},
+  season:{summer:'summer with mature green foliage',spring:'spring with fresh green foliage',autumn:'autumn with restrained natural color change',winter:'winter with sparse foliage and clear landscape structure'},
+  trees:{deciduous:'natural deciduous canopy trees with believable branching',evergreen:'evergreen trees with realistic dense foliage',mixed:'mixed deciduous and evergreen tree palette',ornamental:'architectural ornamental trees with controlled canopy form'},
+  shrubs:{low:'low shrubs and ground-level planting',mid:'medium-height shrubs with varied masses',hedge:'orderly low-to-mid hedges',mixed:'layered shrubs at varied heights'},
+  groundcover:{lawn:'healthy lawn as the primary ground layer',grasses:'ornamental grasses and flowering groundcovers',mixed:'lawn mixed with restrained flowering groundcover',minimal:'minimal groundcover around primary hardscape'},
+  maintenance:{well:'well-maintained contemporary landscape',natural:'natural but cared-for landscape appearance',minimal:'low-maintenance landscape with restrained intervention'},
+  background:{midUrban:'mid-rise urban context with distant mountain ridge',denseCity:'dense contemporary city skyline',residentialBg:'mid-low-rise residential context',civicBg:'civic and cultural buildings in the background',campusBg:'campus landscape with institutional buildings',suburbanBg:'low-density suburban context with distant mountains',waterBg:'waterfront setting with distant city and open horizon'},
+  bgHeight:{low:'mostly low-rise surrounding buildings',mid:'low- to mid-rise surrounding buildings',high:'mixed mid-rise and high-rise surrounding buildings',tower:'surrounding context includes several taller towers'},
+  bgContrast:{subtle:'secondary background contrast, clearly subordinate to the main building',balanced:'balanced background contrast',rich:'rich but controlled background detail'},
+  distant:{mountain:'distant mountain ridge',skyline:'distant city skyline',treeLine:'distant tree line',open:'open distant horizon',water:'distant water surface and shoreline'},
+  sky:{clear:'clear blue sky with natural tonal falloff',thinCloud:'clear sky with thin high clouds',partly:'partly cloudy natural sky',overcast:'soft overcast sky with diffuse illumination',goldenCloud:'warm late-day sky with restrained high clouds',stormSoft:'soft dramatic cloud formation without theatrical storm effects',blueHour:'deep blue-hour sky with gradual tonal transition'},
+  atmosphere:{clear:'clear crisp atmosphere',slightHaze:'slight urban atmospheric haze',humid:'slightly humid atmosphere',soft:'soft distant atmospheric perspective'},
+  weather:{fair:'fair clear weather',partly:'partly cloudy weather',overcast:'overcast weather',afterRain:'after-rain air and lightly reflective surfaces',evening:'clear evening conditions'},
+  airMood:{neutral:'neutral atmospheric color',fresh:'fresh and clean atmospheric clarity',soft:'soft and calm atmospheric mood',warm:'slightly warm atmospheric mood'},
+  time:{morning:'morning daylight with clean soft directional light',noon:'midday daylight with a higher sun position',afternoon:'mid-afternoon with slightly warm natural sunlight',golden:'golden hour with low warm sunlight and long shadows',blue:'blue hour with cool ambient sky and restrained warm interior light',night:'nighttime architectural photography with controlled artificial lighting'},
+  sunDir:{left:'from camera-front-left at approximately 45 degrees',frontLeft:'from camera-front-left at approximately 45 degrees',front:'from camera-front at 0 degrees',right:'from camera-front-right at approximately 45 degrees',rightSide:'from the camera-right side at approximately 90 degrees',rearRight:'from behind the camera toward the rear-right at approximately 135 degrees',back:'from behind the camera at approximately 180 degrees, creating a backlit effect',rearLeft:'from behind the camera toward the rear-left at approximately 225 degrees',leftSide:'from the camera-left side at approximately 270 degrees'},
+  shadow:{soft:'soft long shadows',balanced:'balanced medium-length shadows',crisp:'shorter crisp shadows'},
+  color:{neutral:'neutral natural color rendering',warm:'slightly warm natural color response',cool:'slightly cool neutral color response',premium:'restrained premium color grading'},
+  contrast:{natural:'natural balanced contrast',soft:'soft restrained contrast',defined:'clear facade modeling with controlled contrast',cinematic:'restrained cinematic contrast'},
+  glassReflection:{restrained:'restrained realistic glass reflections',sky:'slightly stronger sky reflections while retaining transparency',context:'slightly stronger reflections of nearby context while retaining transparency',balanced:'balanced sky and contextual reflections'},
+  photorealism:{high:'high-end architectural photography realism',veryHigh:'maximum practical photographic realism',presentation:'presentation-grade architectural photography realism'}
+};
+
+const presetValues={
+ office:{site:'urbanOffice',background:'midUrban',mainMat:'concrete',subMat:'darkMetal',glass:'lowe',frame:'black',roof:'flat',base:'granite',view:'eye',lens:'35',camHeight:'match',time:'afternoon',sunDir:'frontLeft',sunElev:35,shadow:'balanced',sky:'thinCloud',weather:'fair',airMood:'neutral',planting:'urban',trees:'deciduous',shrubs:'low',groundcover:'lawn',plantDensity:'medium',season:'summer',photoStyle:'architectural',color:'neutral',contrast:'natural'},
+ residential:{site:'residential',background:'residentialBg',mainMat:'brick',subMat:'darkStone',glass:'lowe',frame:'black',roof:'flat',base:'lightStone',view:'high',lens:'28',camHeight:'3',time:'afternoon',sunDir:'right',sunElev:40,shadow:'soft',sky:'partly',weather:'partly',airMood:'fresh',planting:'lush',trees:'mixed',shrubs:'mixed',groundcover:'mixed',plantDensity:'dense',season:'summer',photoStyle:'realestate',color:'warm',contrast:'soft'},
+ public:{site:'civic',background:'civicBg',mainMat:'stone',subMat:'darkMetal',glass:'clear',frame:'bronze',roof:'flat',base:'granite',view:'eye',lens:'35',camHeight:'match',time:'morning',sunDir:'frontLeft',sunElev:28,shadow:'soft',sky:'clear',weather:'fair',airMood:'fresh',planting:'formal',trees:'ornamental',shrubs:'hedge',groundcover:'mixed',plantDensity:'medium',season:'spring',photoStyle:'documentation',color:'neutral',contrast:'defined'},
+ culture:{site:'culture',background:'civicBg',mainMat:'metal',subMat:'terracottaAccent',glass:'bluegray',frame:'bronze',roof:'metal',base:'darkStone',view:'aerial',lens:'28',camHeight:'8',time:'golden',sunDir:'right',sunElev:18,shadow:'soft',sky:'goldenCloud',weather:'evening',airMood:'warm',planting:'minimal',trees:'ornamental',shrubs:'low',groundcover:'minimal',plantDensity:'sparse',season:'autumn',photoStyle:'magazine',color:'premium',contrast:'cinematic'},
+ campus:{site:'campus',background:'campusBg',mainMat:'brick',subMat:'woodAccent',glass:'lowe',frame:'black',roof:'slab',base:'lightStone',view:'high',lens:'35',camHeight:'8',time:'morning',sunDir:'front',sunElev:32,shadow:'balanced',sky:'thinCloud',weather:'fair',airMood:'fresh',planting:'natural',trees:'mixed',shrubs:'mixed',groundcover:'grasses',plantDensity:'medium',season:'spring',photoStyle:'architectural',color:'neutral',contrast:'soft'},
+ house:{site:'suburban',background:'suburbanBg',mainMat:'stone',subMat:'woodAccent',glass:'clear',frame:'black',roof:'slab',base:'lightStone',view:'low',lens:'35',camHeight:'1.6',time:'morning',sunDir:'frontLeft',sunElev:24,shadow:'soft',sky:'clear',weather:'fair',airMood:'fresh',planting:'natural',trees:'deciduous',shrubs:'low',groundcover:'mixed',plantDensity:'sparse',season:'spring',photoStyle:'magazine',color:'warm',contrast:'natural'},
+ waterfront:{site:'waterfront',background:'waterBg',mainMat:'concrete',subMat:'darkMetal',glass:'bluegray',frame:'black',roof:'flat',base:'lightStone',view:'aerial',lens:'28',camHeight:'8',time:'golden',sunDir:'front',sunElev:16,shadow:'soft',sky:'goldenCloud',weather:'evening',airMood:'warm',planting:'minimal',trees:'ornamental',shrubs:'low',groundcover:'minimal',plantDensity:'sparse',season:'summer',photoStyle:'cinematic',color:'premium',contrast:'soft'}
+};
+
+function v(id){return $('#'+id)?.value ?? ''} function checked(id){return !!$('#'+id)?.checked} function active(group){return document.querySelector(`[data-group="${group}"] .active`)?.dataset.value || state[group]} 
+function setActive(group,val){state[group]=val;const root=document.querySelector(`[data-group="${group}"]`);if(root)root.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.value===val));render()}
+function valueText(group,id){const val=v(id); if(val==='custom'){const inputId=id+'Custom'; const custom=(v(inputId)||'').trim(); return custom || '직접 입력 필요: 재질 설명을 입력하세요';} return maps[group]?.[val] || val}
+function designRules(){
+ const r=[];
+ if(checked('lockSilhouette')) r.push('preserve the exact outer silhouette and visible massing of the source building');
+ if(checked('lockMass')) r.push('preserve the exact floor count, proportions, volumes, slabs and footprint');
+ if(checked('lockOpenings')) r.push('preserve every existing window, door, curtain-wall module and opening in its exact location, size and quantity');
+ if(checked('lockFacade')) r.push('preserve visible facade divisions, alignment lines, mullions and architectural edges');
+ if(checked('lockRoof')) r.push('preserve rooflines, parapets, canopies and visible roof geometry');
+ if(checked('lockFootprint')) r.push('preserve the building position and footprint exactly as shown');
+ return r;
+}
+function qaRules(){
+ const r=[];
+ if(checked('noRedesign')) r.push('Do not redesign, beautify or reinterpret the architecture.');
+ if(checked('noReframe')) r.push('Do not move the camera, crop, zoom, pan, rotate or reframe the image.');
+ if(checked('noExtraFloors')) r.push('Do not add, remove, move or resize floors, windows, doors, balconies, columns, slabs or facade features.');
+ if(checked('noWarp')) r.push('Avoid fisheye distortion, warped geometry, exaggerated perspective and inconsistent verticals.');
+ if(checked('noSiteSwap')) r.push('Never swap roadway, sidewalk, planting, lawn, plaza or building zones.');
+ if(checked('noObscure')) r.push('Keep trees, people and vehicles from obscuring key facade edges, windows and entrances.');
+ if(checked('noRepeat')) r.push('Avoid duplicated vegetation and repeated object patterns.');
+ if(checked('noPlastic')) r.push('Avoid plastic-looking materials, fake CGI surfaces, excessive gloss and artificial HDR.');
+ if(checked('noLightConflict')) r.push('Keep one physically consistent light direction and shadow logic across all scene elements.');
+ if(checked('noText')) r.push('Avoid invented signage, random lettering and logos unless they are clearly present in the reference.');
+ if(checked('noPeopleArtifacts')) r.push('Keep people and vehicles anatomically and dimensionally plausible; avoid malformed figures and distorted cars.');
+ return r;
+}
+function baseLead(){
+ const lead=baseLeadCore();
+ if(!idAttach()) return lead;
+ return 'ATTACHED IMAGES (2 — in this order)\n- IMAGE 1: 3D modeling screenshot. The authoritative source for architecture, geometry and camera.\n- IMAGE 2: Rhino MATERIAL ID MAP of the exact same view, pixel-aligned with IMAGE 1. Each flat color marks exactly where one building material goes. Use IMAGE 2 only as a material region map: never render its flat colors, and never take geometry, lighting or composition from it.\n\n'+lead;
+}
+function baseLeadCore(){
+ const engine=state.engine;
+ if(engine==='nano') return 'Use the attached 3D modeling screenshot as the primary reference image. Perform an image-editing / image-to-image style architectural visualization. The attached image is the authoritative source for architecture and camera.';
+ if(engine==='chatgpt') return 'Edit and transform the attached 3D modeling screenshot into a photorealistic architectural photograph. Treat the attached image as the authoritative source for the building and camera, and make only the instructed visual changes.';
+ return 'Use the attached 3D modeling screenshot as the authoritative reference image and transform it into a photorealistic architectural visualization while preserving the source design and camera.';
+}
+function geometryBlock(){
+ return `DESIGN LOCK / GEOMETRY\n- Lock strategy: ${maps.fidelity[state.fidelity]}\n- Preserve these source constraints:\n${designRules().map(x=>'  - '+x).join('\n')}\n- Treat every visible building edge, opening and major line in the reference as a geometric constraint.\n- If the source model is incomplete, simplified or only 50% modeled, do not use the missing detail as permission to redesign. Complete only the visual expression using the selected materials, lighting and environment.`;
+}
+function cameraBlock(){
+ return `CAMERA / COMPOSITION\n- Current view: ${valueText('view','view')}.\n- ${valueText('camHeight','camHeight')}.\n- ${valueText('lens','lens')}.\n- ${valueText('vertical','vertical')}.\n- ${valueText('aspect','aspect')}.\n- ${valueText('dof','dof')}.\n- ${valueText('exposure','exposure')}.\n- Preserve the exact camera position, orientation, framing, horizon relationship, vanishing points and building placement of the source capture. Do not create a new viewpoint.`;
+}
+function idMapRules(){
+ return `- MATERIAL REGION MAP = IMAGE 2 (highest priority for material assignment)\n  - ${idLegendBlock()}\n- Every building surface takes the material of its ID color in IMAGE 2. A material must never spread into a region of a different ID color.\n- Do not reinterpret a region as another material because of its shape, shade, size or position in IMAGE 1. IMAGE 2 overrides visual guessing.\n- Material boundaries follow the ID color boundaries of IMAGE 2 exactly.\n- ${checked('sameColorAll')?'The same ID color means the same material everywhere in the image.':'Apply an ID color only where it is clearly present.'}\n${edgeBlendLine()}- Colors in IMAGE 2 that are not listed above (e.g. background) are not building materials; keep those areas according to the editing scope.\n`;
+}
+function materialBlock(){
+ const materialRules=[];
+ if(checked('materialBoundaries')) materialRules.push('Keep material boundaries aligned with the existing modeled surfaces; do not invent new cladding geometry to justify a material.');
+ return `BUILDING MATERIAL SYSTEM\n- Main facade: ${valueText('mainMat','mainMat')}.\n- Secondary facade: ${valueText('subMat','subMat')}.\n- Glazing: ${valueText('glass','glass')}.\n- Window / metal frames: ${valueText('frame','frame')}.\n- Roof / canopy: ${valueText('roof','roof')}.\n- Base / podium: ${valueText('base','base')}.\n- Roughness: ${valueText('roughness','roughness')}.\n- Surface detail: ${valueText('surface','surface')}.\n- Joints / seams: ${valueText('joints','joints')}.\n- Condition: ${valueText('weathering','weathering')}.\n${idAttach()?idMapRules():`- RHINO MATERIAL ID COLOR MAPPING\n- ${materialColorBlock()}\n- ${checked('sameColorAll')?'Same ID color is a global material selector across the entire image.':'ID color matching should be limited to the confidently matching regions.'}\n${edgeBlendLine()}`}- Use realistic PBR-like material behavior, correct texture scale, believable reflections, transmission, micro-variation and contact between materials.\n${materialRules.map(x=>'- '+x).join('\n')}`;
+}
+function siteBlock(){
+ const cars={none:'no visible cars',few:'a few appropriately scaled cars',normal:'a moderate realistic number of cars',busy:'more active but still controlled traffic presence'}[state.cars];
+ const people={none:'no visible pedestrians',few:'a few natural pedestrians',normal:'a moderate pedestrian presence',many:'a busier but controlled pedestrian presence'}[state.people];
+ return `SITE ZONING / CIRCULATION\n- Site character: ${valueText('site','site')}.\n- Vehicle road surface material: ${v('roadLayout')==='none'?'no vehicle road surface':valueText('road','road')}; keep its position, footprint and width aligned with the reference.\n- Road type / lane configuration: ${v('roadLayout')==='custom'?(v('roadLayoutCustom').trim()||'custom road layout; follow the reference image'):valueText('roadLayout','roadLayout')}.\n- Road markings: ${v('roadLayout')==='none'?'no roadway or road markings; do not invent a road':v('roadLayout')==='pedestrianPriority'&&v('laneMarkings')==='standard'?'restrained markings suitable for a pedestrian-priority street':valueText('laneMarkings','laneMarkings')}. Add markings only on the existing road surface, with correct perspective, scale, continuity and alignment. Do not paint lane markings on sidewalks, plazas or planting zones.\n- Pedestrian sidewalk: ${valueText('sidewalk','sidewalk')}; maintain a clear pedestrian zone separate from the road.\n- Entrance forecourt: ${valueText('plaza','plaza')}.\n- Parking / service: ${valueText('parking','parking')}.\n- Surface condition: ${valueText('roadCondition','roadCondition')}.\n- Vegetation character: ${valueText('planting','planting')}; density ${valueText('plantDensity','plantDensity')}; season ${valueText('season','season')}.\n- Vehicles: ${cars}. Pedestrians: ${people}.\n- Keep road, sidewalk, paving, lawn, planting beds and building surfaces clearly differentiated and in their correct spatial zones.`;
+}
+function landscapeBlock(){
+ const f=[];
+ if(checked('landscapeNoObscure')) f.push('do not allow vegetation to obscure the primary architecture');
+ if(checked('realScale')) f.push('use realistic plant maturity and architectural scale');
+ if(checked('noCopyTrees')) f.push('vary tree species, canopy shapes, heights and spacing naturally instead of copy-pasting');
+ if(checked('peopleScale')) f.push('keep people and vehicles correctly scaled to the building');
+ if(checked('cleanEdges')) f.push('keep paving, curb, road and planting boundaries legible');
+ if(checked('landFurniture')) f.push('include restrained benches, bollards or public-realm furniture only where appropriate');
+ return `LANDSCAPE DIRECTION\n- Trees: ${valueText('trees','trees')}.\n- Shrubs: ${valueText('shrubs','shrubs')}.\n- Ground layer: ${valueText('groundcover','groundcover')}.\n- Maintenance: ${valueText('maintenance','maintenance')}.\n- Use a contemporary landscape character compatible with the architecture.\n${f.map(x=>'- '+x).join('\n')}`;
+}
+function contextBlock(){
+ const f=[];
+ if(checked('contextScale')) f.push('maintain consistent scale across surrounding buildings, cars and people');
+ if(checked('atmoDepth')) f.push('use distance-based atmospheric perspective to separate foreground, midground and background');
+ if(checked('bgNoDominate')) f.push('keep the background visually subordinate to the main building');
+ return `CONTEXT / BACKGROUND\n- Background setting: ${valueText('background','background')}.\n- Surrounding building height: ${valueText('bgHeight','bgHeight')}.\n- Background contrast: ${valueText('bgContrast','bgContrast')}.\n- Distant element: ${valueText('distant','distant')}.\n- Integrate the background naturally into the existing camera framing without changing the main building silhouette.\n${f.map(x=>'- '+x).join('\n')}`;
+}
+function skyBlock(){
+ return `SKY / WEATHER / ATMOSPHERE\n- Sky: ${valueText('sky','sky')}.\n- Weather: ${valueText('weather','weather')}.\n- Atmosphere: ${valueText('atmosphere','atmosphere')}.\n- Atmospheric mood: ${valueText('airMood','airMood')}.\n- Keep sky brightness, environmental reflections, background exposure and ground illumination physically coherent.`;
+}
+function lightingBlock(){
+ const artificial=[];
+ if(checked('interiorLight')) artificial.push('restrained warm interior lighting');
+ if(checked('entryLight')) artificial.push('subtle entrance accent lighting');
+ if(checked('landLight')) artificial.push('restrained landscape lighting');
+ if(checked('streetLight')) artificial.push('realistic street lighting');
+ if(checked('vehicleLight')) artificial.push('subtle vehicle headlight and tail-light cues');
+ if(checked('signageMin')) artificial.push('keep signage and lettering minimal and unobtrusive');
+ return `LIGHTING DIRECTOR\n- Time of day: ${valueText('time','time')}.\n- Sun direction: ${valueText('sunDir','sunDir')}.\n- Sun elevation: approximately ${v('sunElev')} degrees.\n- Shadow character: ${valueText('shadow','shadow')}.\n- Use one consistent physical light direction across architecture, landscape, people, vehicles and background.\n- Include realistic direct sunlight, skylight, indirect bounce and contact shadows.\n- Artificial lighting: ${artificial.length?artificial.join(', '):'none; use natural light only'}.`;
+}
+function photoBlock(){
+ const rules=[];
+ if(checked('pbr')) rules.push('physically plausible PBR-like material response');
+ if(checked('gi')) rules.push('natural indirect illumination and reflected light');
+ if(checked('contact')) rules.push('realistic contact shadows and grounded surfaces');
+ if(checked('noBloom')) rules.push('no excessive bloom or glow');
+ if(checked('noHDR')) rules.push('no excessive HDR, oversaturation or clipped highlights');
+ if(checked('noIllustration')) rules.push('no illustration, concept-art or game-render appearance');
+ return `PHOTOGRAPHIC FINISH\n- Style: ${valueText('photoStyle','photoStyle')}.\n- Color response: ${valueText('color','color')}.\n- Contrast: ${valueText('contrast','contrast')}.\n- Glass reflections: ${valueText('glassReflection','glassReflection')}.\n- Realism target: ${valueText('photorealism','photorealism')}.\n- The result should look like a professionally photographed built project, with believable material scale, exposure, atmosphere and architectural detailing.\n${rules.map(x=>'- '+x).join('\n')}`;
+}
+function qaBlock(){
+ return `AI SAFETY / FINAL QA\nPriority order: 1) geometry and camera, 2) material mapping, 3) site zoning and landscape, 4) context and sky, 5) lighting, 6) photographic finish.\n${qaRules().map(x=>'- '+x).join('\n')}`;
+}
+function engineerLead(){
+ if(state.engine==='nano') return 'NANO BANANA EXECUTION NOTE\nPreserve the source image as the dominant structural reference. Make the transformation through controlled image editing: change material appearance, landscape, context, sky and lighting while keeping the building and camera unchanged.';
+ if(state.engine==='chatgpt') return 'CHATGPT IMAGES EXECUTION NOTE\nTreat the uploaded image as the visual source of truth. Keep the architecture and framing fixed, and apply the requested changes to material, environment, atmosphere and light without redesigning the building.';
+ return 'UNIVERSAL EXECUTION NOTE\nTreat the uploaded image as the visual source of truth. Preserve the architecture and camera and make only the instructed visual changes.';
+}
+function masterPrompt(){
+ return [baseLead(),engineerLead(),geometryBlock(),cameraBlock(),materialBlock(),siteBlock(),landscapeBlock(),contextBlock(),skyBlock(),lightingBlock(),photoBlock(),qaBlock(), 'FINAL COMMAND\nRender the existing 3D-model architecture as a finished photorealistic architectural photograph. Do not reinterpret the design. Improve realism through material behavior, site integration, atmosphere and light only.'].join('\n\n');
+}
+function twoStepPrompts(){
+ const step1=[
+  baseLead(),
+  'PASS 1 — BUILDING-ONLY MATERIALIZATION. This is NOT a complete-scene rendering pass. Edit only the visible pixels/surfaces belonging to the main building.',
+  'STRICT EDITING SCOPE — HIGHEST PRIORITY\n- Photorealistically materialize the main building only: facade surfaces, glazing, frames, roof/canopy and podium/base.\n- Do NOT generate, replace, enhance, redesign or add any surroundings: no new road, lane markings, sidewalk, curb, plaza, lawn, planting bed, tree, shrub, grass, person, car, street furniture, neighboring building, mountain, skyline, cloud or sky.\n- Keep every non-building area exactly as it appears in the input screenshot. If the original surroundings are plain, empty, gray, unfinished or low quality, leave them that way. Do not fill empty areas with plausible scenery.\n- Do not extend the ground plane, invent site details, add reflections that imply newly created surroundings, or complete any off-building scene elements.\n- The only allowed visual changes are realistic building material response, fine surface texture, glazing, and restrained lighting/shadows ON THE BUILDING. Do not relight or reconstruct the whole scene.',
+  geometryBlock(),cameraBlock(),materialBlock(),
+  `BUILDING-ONLY LIGHTING\n- Time of day: ${valueText('time','time')}.\n- Sun direction relative to camera: ${valueText('sunDir','sunDir')}.\n- Sun elevation: approximately ${v('sunElev')} degrees.\n- Shadow character: ${valueText('shadow','shadow')}.\n- Apply the chosen light only as a consistent illumination cue on the building surfaces. Preserve existing background and ground pixels; do not create new environmental light sources or scene objects.`,
+  `BUILDING PHOTOREALISM\n- Style: ${valueText('photoStyle','photoStyle')}; color: ${valueText('color','color')}; contrast: ${valueText('contrast','contrast')}.\n- Improve PBR-like material response, texture scale, glass transmission/reflection and contact at material boundaries on the building only.\n- No cinematic environment enhancement, no background replacement, no landscape beautification, no full-scene reconstruction.`,
+  'PASS 1 ACCEPTANCE CHECK\n1. Building geometry, silhouette, floor count, openings, facade divisions and camera framing remain identical to the source.\n2. Only the building materials and building-surface lighting become photorealistic.\n3. Every pixel outside the building remains unchanged wherever possible.\n4. If a region cannot be confidently identified as part of the building, do not modify it.\n5. Return the same image aspect ratio and framing. Do not create a finished site image yet.'
+ ].join('\n\n');
+ const step2=['PASS 2 — SITE / LANDSCAPE / CONTEXT / SKY ONLY\nUse the approved PASS 1 result as the primary input image. Add or refine the selected surroundings while preserving the building pixels, silhouette, facade, materials, camera, perspective and framing. If available, attach the original 3D screenshot as a secondary geometry/camera reference.',siteBlock(),landscapeBlock(),contextBlock(),skyBlock(),lightingBlock(),'ENVIRONMENT QA — STRICT BUILDING LOCK\n- Modify only site, road markings, sidewalk, paving, landscape, people/vehicles if selected, background, sky and environmental light/reflections.\n- Do not move, crop, reframe, redesign, rebuild or alter the main building. Do not change its material assignments, window divisions, silhouette or proportions.\n- Keep road, sidewalk, plaza and planting in their correct spatial zones. Add road markings only to the road surface.\n- If environmental details conflict with the building, preserve the building and simplify the environment.'].join('\n\n');
+ return {step1,step2};
+}
+function repairPrompt(){
+ return `ARCHITECTURAL IMAGE REPAIR / CORRECTION\nUse BOTH the original 3D modeling screenshot and the current generated image. Compare them and correct only the mismatched areas. Preserve everything that is already correct.\n\n1. GEOMETRY RESTORATION\n- Restore the exact source building silhouette, massing, floor count, roofline, openings, windows, doors, facade divisions, footprint and visible edges.\n- Do not redesign any part of the architecture.\n\n2. CAMERA RESTORATION\n- Restore the exact source camera position, framing, perspective, vanishing points, horizon relationship, image ratio and building placement.\n- Do not crop, zoom, pan or create a new viewpoint.\n\n3. MATERIAL RESTORATION\n${idAttach()?'- If the Rhino MATERIAL ID MAP is also attached, use it as the material region map: each ID color region must show only its assigned material.\n  - '+idLegendBlock()+'\n':''}- Main facade: ${valueText('mainMat','mainMat')}.\n- Secondary facade: ${valueText('subMat','subMat')}.\n- Glazing: ${valueText('glass','glass')}.\n- Frames: ${valueText('frame','frame')}.\n- Roof: ${valueText('roof','roof')}.\n- Base: ${valueText('base','base')}.\n- ${materialColorBlock()}\n\n4. SITE RESTORATION\n- Road surface material: ${valueText('road','road')}.\n- Road layout: ${v('roadLayout')==='custom'?(v('roadLayoutCustom').trim()||'follow reference road layout'):valueText('roadLayout','roadLayout')}.\n- Lane markings: ${v('roadLayout')==='none'?'no roadway or markings':valueText('laneMarkings','laneMarkings')}.\n- Sidewalk: ${valueText('sidewalk','sidewalk')}.\n- Planting: ${valueText('planting','planting')}.\n- Restore correct zoning if AI changed road, sidewalk, lawn, planting or entrance areas.\n\n5. LIGHTING RESTORATION\n- ${valueText('time','time')}; ${valueText('sunDir','sunDir')}; approximately ${v('sunElev')} degrees; ${valueText('shadow','shadow')}.\n\nFINAL REPAIR RULE\nChange only incorrect regions. Do not modify correct regions. The original 3D screenshot is authoritative for architectural geometry and camera.`;
+}
+function tagPrompt(){
+ return [
+  'architectural visualization','photorealistic architectural photography','reference image edit','geometry locked','camera locked','form preservation',
+  valueText('view','view'),valueText('mainMat','mainMat'),valueText('glass','glass'),valueText('roof','roof'),valueText('site','site'),valueText('planting','planting'),valueText('background','background'),valueText('sky','sky'),valueText('time','time'),valueText('sunDir','sunDir')+` ${v('sunElev')}deg`,valueText('photoStyle','photoStyle'),valueText('photorealism','photorealism')
+ ].join(', ');
+}
+function build(){
+ const mode=state.promptMode;
+ if(mode==='full') return {items:[['MASTER PROMPT',masterPrompt()]],type:'FULL'};
+ if(mode==='twoStep'){const p=twoStepPrompts();return {items:[['PASS 1 · BUILDING / MATERIAL / LIGHT',p.step1],['PASS 2 · SITE / LANDSCAPE / CONTEXT / SKY',p.step2]],type:'TWO STEP'};}
+ if(mode==='repair') return {items:[['REPAIR / CORRECTION PROMPT',repairPrompt()]],type:'REPAIR'};
+ return {items:[['TAG / KEYWORD PROMPT',tagPrompt()]],type:'TAG'};
+}
+function summary(){
+ const scene=valueText('site','site');
+ return `${valueText('view','view')} · ${valueText('mainMat','mainMat')} + ${valueText('glass','glass')} · ${valueText('planting','planting')} · ${valueText('time','time')} · sun ${v('sunElev')}° ${valueText('sunDir','sunDir')} · ${state.fidelity.toUpperCase()}`;
+}
+const materialColorFields={mainMat:'mainMatColor',subMat:'subMatColor',glass:'glassColor',frame:'frameColor',roof:'roofColor',base:'baseColor'};
+let idImageLoaded=false; let idImageNaturalW=0; let idImageNaturalH=0; let pendingSampleTarget=null;
+function normalizeHex(h){let x=(h||'').trim().replace(/^#/,''); if(/^[0-9a-fA-F]{6}$/.test(x)) return '#'+x.toLowerCase(); return null}
+function setColorField(id,hex){const c=normalizeHex(hex); if(!c)return; const colorEl=$('#'+id); const hexEl=$('#'+id+'Hex'); if(colorEl)colorEl.value=c; if(hexEl)hexEl.value=c.toUpperCase(); render();}
+function syncColorControls(){Object.values(materialColorFields).forEach(id=>{const c=$('#'+id),h=$('#'+id+'Hex');if(!c||!h)return; c.addEventListener('input',()=>{h.value=c.value.toUpperCase();render()}); h.addEventListener('change',()=>{const n=normalizeHex(h.value);if(n){c.value=n;h.value=n.toUpperCase();render()}else{h.value=c.value.toUpperCase()}})});}
+function readColor(id){const el=$('#'+id);return el?.value?.toUpperCase()||''}
+function edgeBlendLine(){if(!checked('idEdgeBlend'))return '';return idAttach()?'- Thin blended or anti-aliased pixels along ID color boundaries in IMAGE 2 belong to the nearest listed ID color; they are not separate materials or extra trims.\n':'- Thin blended or anti-aliased pixels along ID color boundaries belong to the nearest ID color; they are not separate materials or extra trims.\n'}
+function idAttach(){return checked('attachIdImage')}
+function idColorName(h){const x=normalizeHex(h);if(!x)return '';const r=parseInt(x.substr(1,2),16),g=parseInt(x.substr(3,2),16),b=parseInt(x.substr(5,2),16);const mx=Math.max(r,g,b),mn=Math.min(r,g,b);if(mx<50)return 'black';if(mn>205)return 'white';if(mx-mn<30)return 'gray';const d=mx-mn;let hh=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;hh*=60;if(hh<0)hh+=360;return [[15,'red'],[45,'orange'],[70,'yellow'],[160,'green'],[200,'cyan'],[255,'blue'],[290,'purple'],[335,'magenta'],[360,'red']].find(n=>hh<n[0])[1]}
+function idLegendBlock(){const labels={mainMat:'Main facade',subMat:'Secondary facade',glass:'Glazing',frame:'Window / metal frames',roof:'Roof / canopy',base:'Base / podium'};return Object.entries(materialColorFields).filter(([mat])=>!(mat==='subMat'&&v('subMat')==='none')).map(([mat,colorId])=>{const h=readColor(colorId);return `${idColorName(h).toUpperCase()} ${h} → ${labels[mat]}: ${valueText(mat,mat)}`}).join('\n  - ')}
+function materialColorBlock(){return Object.entries(materialColorFields).map(([mat,colorId])=>`${mat} ID color: ${readColor(colorId)}; treat every matching ID-color region as the selected ${mat} material region.`).join('\n- ')}
+function openIDPicker(target){pendingSampleTarget=target; $('#idImageInput').click()}
+function paintIDImage(file){const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const cv=$('#idCanvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;idImageNaturalW=img.naturalWidth;idImageNaturalH=img.naturalHeight;cv.getContext('2d',{willReadFrequently:true}).drawImage(img,0,0);cv.style.display='block';$('#idEmpty').style.display='none';idImageLoaded=true;$('#attachIdImage').checked=true;render(); if(pendingSampleTarget){$('#sampleTarget').textContent='연결 대상: '+pendingSampleTarget; } showToast('ID 이미지가 준비되었습니다. 이미지에서 색상을 클릭하세요.');};img.src=r.result};r.readAsDataURL(file)}
+function sampleIDAtEvent(e){if(!idImageLoaded)return;const cv=$('#idCanvas'),rect=cv.getBoundingClientRect();const sx=cv.width/rect.width, sy=cv.height/rect.height;const x=Math.min(cv.width-1,Math.max(0,Math.floor((e.clientX-rect.left)*sx)));const y=Math.min(cv.height-1,Math.max(0,Math.floor((e.clientY-rect.top)*sy)));const d=cv.getContext('2d',{willReadFrequently:true}).getImageData(x,y,1,1).data;const h=normalizeHex('#'+[d[0],d[1],d[2]].map(v=>v.toString(16).padStart(2,'0')).join(''));$('#sampleSwatch').style.background=h;$('#sampleRGB').textContent=`RGB: ${d[0]} / ${d[1]} / ${d[2]}`;$('#sampleHEX').textContent='HEX: '+h.toUpperCase();if(pendingSampleTarget){setColorField(pendingSampleTarget,h);$('#sampleTarget').textContent='연결 대상: '+pendingSampleTarget+' · '+h.toUpperCase();showToast('선택한 ID 색상을 재료에 연결했습니다.')}else{$('#sampleTarget').textContent='연결 대상: 재료를 먼저 선택하세요.'}}
+function updateMaterialCustomFields(){
+ ['mainMat','subMat','glass','frame','roof','base'].forEach(id=>{const wrap=document.getElementById(id+'CustomWrap'); if(wrap) wrap.style.display=v(id)==='custom'?'block':'none';});
+}
+function render(){
+ updateMaterialCustomFields();
+ const customRoadWrap=$('#roadLayoutCustomWrap'); if(customRoadWrap) customRoadWrap.style.display=v('roadLayout')==='custom'?'block':'none';
+ const out=build();
+ const selectedIndex=(state.promptMode==='twoStep' && out.items.length>1)?Math.min(activePass-1,out.items.length-1):0;
+ $('#tabs').innerHTML=out.items.map((x,i)=>`<button class="tab ${i===selectedIndex?'active':''}" data-index="${i}">${x[0]}</button>`).join('');
+ $('#promptArea').innerHTML=out.items.map((x,i)=>`<div class="prompt-block" style="display:${i===selectedIndex?'block':'none'}"><div class="prompt-title">${x[0]}</div><div class="prompt" id="prompt_${i}"></div></div>`).join('');
+ out.items.forEach((x,i)=>{const el=$('#prompt_'+i);if(el)el.textContent=x[1]});
+ $$('#tabs .tab').forEach(btn=>btn.addEventListener('click',()=>{activePass=Number(btn.dataset.index)+1;render()}));
+ $$('.stage-card').forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.stage)===activePass));
+ $$('main.left section[data-pass]').forEach(sec=>{const pass=sec.dataset.pass;sec.style.display=(pass==='both'||pass===String(activePass))?'block':'none'});
+ const stageInstruction=$('#stageInstruction');
+ if(stageInstruction) stageInstruction.innerHTML=activePass===1?'<strong>현재 단계: PASS 1</strong> · 건축물 표면만 실사화합니다. 도로·조경·하늘·배경은 새로 만들거나 변경하지 말고 원본 상태로 유지하세요.':'<strong>현재 단계: PASS 2</strong> · PASS 1 결과 이미지를 다시 첨부하고 주변 환경만 추가하세요. 건축물 형상·카메라·재료는 변경하지 않도록 지시합니다.';
+ $('#summaryText').textContent=summary();
+ $('#promptMeta').innerHTML=[`<span class="pill">${state.engine==='nano'?'Nano Banana':state.engine==='chatgpt'?'ChatGPT Images':'Universal'}</span>`,`<span class="pill">${out.type}</span>`,`<span class="pill">${state.fidelity==='hard'?'FORM LOCK 100%':state.fidelity==='balanced'?'FORM LOCK HIGH':'FORM LOCK + PRESENTATION'}</span>`,`<span class="pill">${window.__hasImage?'SOURCE READY':'SOURCE REQUIRED'}</span>`].join('');
+ $('#successHint').textContent=window.__hasImage?'기준 이미지가 연결되어 있습니다. 현재 프롬프트는 “이미지 편집/변환형 건축 CG”를 전제로 구성됩니다.':'기준 이미지를 첨부하면 건축물 형상과 카메라를 고정하는 실제 워크플로로 사용할 수 있습니다.';
+ $('#warningHint').textContent=state.workflow==='twoStep'?'2단계 작업에서는 PASS 1에서 건축물·재료·빛을 먼저 안정화하고 PASS 2에서 대지·조경·배경·하늘을 추가하는 순서를 권장합니다.':'통합 1회 생성은 편리하지만 배경과 조경을 만드는 과정에서 건축 형상이 변할 가능성이 있으므로 결과가 흔들리면 2단계로 전환하세요.';
+ if(state.promptMode==='repair') $('#warningHint').textContent='수정·복구 모드는 원본 3D 캡처와 현재 결과 이미지를 함께 제공할 때 가장 유용합니다. “틀린 부분만 수정”하도록 구성되어 있습니다.';
+ $('#imageBadge').textContent=window.__hasImage?'SOURCE READY':'REFERENCE REQUIRED';
+ $('#sunElevOut').textContent=v('sunElev')+'°'; updateSunDot();
+ $('#metricWorkflow').textContent=state.workflow==='twoStep'?'2 PASS':state.workflow==='single'?'1 PASS':'REPAIR';
+ $('#metricLock').textContent=state.fidelity==='hard'?'100%':state.fidelity==='balanced'?'95%':'90%+'; $('#metricLockSub').textContent=state.fidelity==='hard'?'설계 보존':state.fidelity==='balanced'?'표현 보완':'홍보 이미지';
+ $('#metricScene').textContent=v('site')==='urbanOffice'?'도심':v('site')==='residential'?'주거':v('site')==='campus'?'캠퍼스':v('site')==='waterfront'?'수변':'프로젝트';
+ $('#metricSceneSub').textContent=valueText('time','time').split(' with')[0];
+ $('#metricEngine').textContent=state.engine==='nano'?'NANO':state.engine==='chatgpt'?'GPT':'UNIV';
+ $('#metricOutput').textContent=out.type;
+ $('#lockBadge').textContent=state.fidelity==='hard'?'HARD LOCK':state.fidelity==='balanced'?'BALANCED LOCK':'PRESENTATION LOCK';
+ const e=state.engine==='nano'?'Nano Banana는 기준 이미지 보존을 최우선으로 하는 편집형 문장으로 구성합니다.':state.engine==='chatgpt'?'ChatGPT Images는 “원본 이미지 기준 + 지정한 영역만 변경”이라는 자연어 지시를 중심으로 구성합니다.':'두 엔진에서 공통으로 이해하기 쉬운 자연어 중심 구조로 구성합니다.'; $('#engineNote').textContent=e;
+}
+function updateSunDot(){const dir=v('sunDir');const aliases={left:'frontLeft'};const selected=aliases[dir]||dir;$$('.sun-point').forEach(btn=>{const active=btn.dataset.sundir===selected;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',active?'true':'false')});const names={frontLeft:'카메라 정면 좌측 45°',front:'카메라 정면',right:'카메라 정면 우측 45°',rightSide:'카메라 우측 90°',rearRight:'카메라 뒤 우측 45°',back:'카메라 뒤쪽 역광',rearLeft:'카메라 뒤 좌측 45°',leftSide:'카메라 좌측 90°'};const note=$('#sunDirectionText');if(note)note.textContent='선택된 방향: '+(names[selected]||selected)+'. 다이어그램의 점을 직접 눌러도 변경할 수 있습니다.';}
+function copyText(txt){navigator.clipboard?.writeText(txt).then(()=>showToast('복사했습니다.')).catch(()=>fallbackCopy(txt))}
+function fallbackCopy(txt){const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();showToast('복사했습니다.')}
+function showToast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1400)}
+function collectValues(){const values={};$$('select,input[type=checkbox],input[type=range],input[type=text]').forEach(el=>{if(el.id) values[el.id]=el.type==='checkbox'?el.checked:el.value});return values}
+function save(){localStorage.setItem('archPromptBuilderV5_2',JSON.stringify({state,values:collectValues()}));showToast('V5.2 설정을 저장했습니다.')}
+function load(){const raw=localStorage.getItem('archPromptBuilderV5_2') || localStorage.getItem('archPromptBuilderV5_1');if(!raw){showToast('저장된 V5.2 설정이 없습니다.');return}try{const data=JSON.parse(raw);Object.assign(state,data.state||{});Object.entries(data.values||{}).forEach(([id,val])=>{const el=$('#'+id);if(!el)return; if(el.type==='checkbox')el.checked=!!val; else el.value=val});$$('[data-group]').forEach(root=>{const g=root.dataset.group;if(state[g])root.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.value===state[g]))});render();showToast('저장한 설정을 불러왔습니다.')}catch(e){showToast('저장 데이터가 손상되었습니다.')}}
+function reset(){if(!confirm('현재 V5.2 설정을 초기화할까요?'))return;location.reload()}
+function applyPreset(name){const p=presetValues[name];if(!p)return;Object.entries(p).forEach(([id,val])=>{if(id==='sunElev'){$('#sunElev').value=val;return}const el=$('#'+id);if(el)el.value=val});state.workflow='twoStep';state.fidelity='hard';state.cars='none';state.people='few';$$('[data-group="workflow"] .mode').forEach(b=>b.classList.toggle('active',b.dataset.value===state.workflow));$$('[data-group="fidelity"] .mode').forEach(b=>b.classList.toggle('active',b.dataset.value===state.fidelity));render();showToast('프로젝트 프리셋을 적용했습니다.')}
+
+$$('.sun-point').forEach(btn=>btn.addEventListener('click',()=>{const select=$('#sunDir');select.value=btn.dataset.sundir;render()}));
+$('#sunDir').addEventListener('change',render);
+
+$$('[data-group] .seg-btn, [data-group] .mode').forEach(b=>b.addEventListener('click',()=>{
+  const group=b.parentElement.dataset.group;
+  setActive(group,b.dataset.value);
+  if(group==='workflow'){
+    state.promptMode = b.dataset.value==='single'?'full':b.dataset.value==='twoStep'?'twoStep':'repair';
+    const outRoot=document.querySelector('[data-group=\"promptMode\"]');
+    if(outRoot) outRoot.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.value===state.promptMode));
+    render();
+  }
+  if(group==='promptMode'){
+    state.workflow = b.dataset.value==='full'?'single':b.dataset.value==='twoStep'?'twoStep':b.dataset.value==='repair'?'repair':state.workflow;
+    const wfRoot=document.querySelector('[data-group=\"workflow\"]');
+    if(wfRoot) wfRoot.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.value===state.workflow));
+    render();
+  }
+}));
+$$('select,input,textarea').forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render)});
+$$('.preset').forEach(b=>b.addEventListener('click',()=>applyPreset(b.dataset.preset)));
+$('#chooseBtn').addEventListener('click',e=>{e.preventDefault();$('#imageInput').click()});
+$('#dropzone').addEventListener('click',e=>{if(e.target.closest('button'))return;if(!window.__hasImage)$('#imageInput').click()});
+$('#imageInput').addEventListener('change',e=>{const f=e.target.files[0];if(f)previewFile(f)});
+['dragenter','dragover'].forEach(ev=>$('#dropzone').addEventListener(ev,e=>{e.preventDefault();$('#dropzone').classList.add('drag')}));
+['dragleave','drop'].forEach(ev=>$('#dropzone').addEventListener(ev,e=>{e.preventDefault();$('#dropzone').classList.remove('drag')}));
+$('#dropzone').addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)previewFile(f)});
+$('#removeBtn').addEventListener('click',e=>{e.stopPropagation();window.__hasImage=false;$('#preview').style.display='none';$('#uploadCopy').style.display='block';$('#removeBtn').style.display='none';$('#uploadStatus').textContent='기준 이미지가 없습니다.';render()});
+function previewFile(file){if(!file.type.startsWith('image/')){showToast('이미지 파일만 지원합니다.');return}const reader=new FileReader();reader.onload=()=>{$('#preview').src=reader.result;$('#preview').style.display='block';$('#uploadCopy').style.display='none';$('#removeBtn').style.display='block';$('#uploadStatus').textContent=`${file.name} · ${(file.size/1024/1024).toFixed(2)} MB`;window.__hasImage=true;render()};reader.readAsDataURL(file)}
+$('#copyAll').addEventListener('click',()=>{const out=build();copyText(out.items.map(x=>`### ${x[0]}\n${x[1]}`).join('\n\n'))});
+$('#copyVisible').addEventListener('click',()=>{const out=build();const idx=(state.promptMode==='twoStep'&&out.items.length>1)?Math.min(activePass-1,out.items.length-1):0;copyText(out.items[idx]?.[1]||'')});
+$$('.stage-card').forEach(btn=>btn.addEventListener('click',()=>{activePass=Number(btn.dataset.stage);render();window.scrollTo({top:0,behavior:'smooth'})}));
+$('#saveBtn').addEventListener('click',save);$('#loadBtn').addEventListener('click',load);$('#resetBtn').addEventListener('click',reset);
+syncColorControls();
+$$('.sample-btn').forEach(b=>b.addEventListener('click',()=>{pendingSampleTarget=b.dataset.sample; if(idImageLoaded){$('#sampleTarget').textContent='연결 대상: '+pendingSampleTarget+' · 이미지에서 색상을 클릭하세요.';}else{$('#idImageChoose').click();}}));
+$('#idImageChoose').addEventListener('click',()=>$('#idImageInput').click());
+$('#idImageInput').addEventListener('change',e=>{const f=e.target.files[0];if(f)paintIDImage(f)});
+$('#idImageClear').addEventListener('click',()=>{idImageLoaded=false;$('#attachIdImage').checked=false;pendingSampleTarget=null;$('#idCanvas').style.display='none';$('#idEmpty').style.display='block';$('#sampleSwatch').style.background='#000000';$('#sampleRGB').textContent='RGB: -';$('#sampleHEX').textContent='HEX: -';$('#sampleTarget').textContent='연결 대상: 없음';});
+$('#idCanvas').addEventListener('click',sampleIDAtEvent);
+render();
+</script>
+</body>
+</html>
